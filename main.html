@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resizable Panels</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
 </head>
 
 <body>
@@ -22,7 +23,15 @@
             </div>
             <div class="resize-handle-vertical"></div>
             <div class="resizable bottom-right">
-                <p>Bottom Right Panel</p>
+                <button id="colorPickerButton">Change Background Color</button>
+                <div id="colorPickerContainer" style="display: none;">
+                    <input type="color" id="colorPicker">
+                    <input type="text" id="hexColorInput" placeholder="#000000">
+                    <button id="applyColorButton">Apply</button>
+                    <button id="closeColorPickerButton">Close</button>
+                </div>
+                <button id="downloadButton">Download Files</button>
+                <a id="downloadLink" style="display: none;">Download</a>
             </div>
         </div>
     </div>

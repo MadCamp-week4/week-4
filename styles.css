@@ -44,6 +44,7 @@ body, html {
 
 .resizable.top-right {
     height: 50%;
+    position: relative;
 }
 
 .resizable.bottom-right {
@@ -78,4 +79,32 @@ body, html {
     overflow: auto;
     background-color: cornflowerblue;
     border: 1px solid #ccc;
+}
+
+#aspectRatioSelector {
+    position: absolute;
+    top: 10px; /* 상단에서 10px 내려오도록 설정 */
+    left: 10px; /* 좌측에서 10px 떨어지도록 설정 */
+    z-index: 2; /* resultpage 위에 표시되도록 z-index 설정 */
+    background-color: white;
+    padding: 5px;
+    border: 1px solid #ccc;
+}
+
+#colorPickerContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+    background-color: white;
+    border: 1px solid #ccc;
+    margin-top: 10px;
+}
+
+#colorPickerButton {
+    margin-bottom: 10px;
+}
+
+#colorPicker, #hexColorInput {
+    margin-bottom: 5px;
 }
