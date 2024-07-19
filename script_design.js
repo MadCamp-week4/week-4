@@ -2,6 +2,9 @@
 let currentAspectRatio = '4:3';
 let currentColor = 'cornflowerblue';
 
+let btn_num = 1;
+let btn_curclick = null;
+
 function loadHTML(url, elementId) {
     fetch(url)
         .then(response => {
@@ -19,61 +22,6 @@ function loadHTML(url, elementId) {
             console.error('There has been a problem with your fetch operation:', error);
         });
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Call the function to load the HTML into the resultpage element
-    loadHTML('user/preview.html', 'resultpage-container');
-
-    // Adjust the resultpage size on window resize
-    window.addEventListener('resize', adjustResultPageSize);
-
-    // Initial adjustment
-    window.addEventListener('load', () => {
-        currentAspectRatio = '4:3';
-        adjustResultPageSize();
-    });
-
-    // Adjust the resultpage size on aspect ratio change
-    document.getElementById('aspectRatioSelector').addEventListener('change', (e) => {
-        currentAspectRatio = e.target.value;
-        adjustResultPageSize();
-    });
-
-    // Color picker functionality
-    const colorPickerButton = document.getElementById('colorPickerButton');
-    const colorPickerContainer = document.getElementById('colorPickerContainer');
-    const colorPicker = document.getElementById('colorPicker');
-    const hexColorInput = document.getElementById('hexColorInput');
-    const applyColorButton = document.getElementById('applyColorButton');
-    const closeColorPickerButton = document.getElementById('closeColorPickerButton');
-
-    colorPickerButton.addEventListener('click', () => {
-        colorPickerContainer.style.display = 'block';
-    });
-
-    applyColorButton.addEventListener('click', () => {
-        const color = colorPicker.value;
-        const hexColor = hexColorInput.value || color;
-        changeBackgroundColor(hexColor);
-        // saveBackgroundColor(hexColor);
-    });
-
-    closeColorPickerButton.addEventListener('click', () => {
-        colorPickerContainer.style.display = 'none';
-    });
-
-    const downloadButton = document.getElementById('downloadButton');
-    downloadButton.addEventListener('click', () => {
-        if (confirm("정말 파일을 생성 하시겠습니까?")) {
-            createAndDownloadZip();
-        }
-    });
-
-    const addButton = document.getElementById('addButton');
-    addButton.addEventListener('click', () => {
-        addButtonToResultPage();
-    });
-});
 
 
 
@@ -214,7 +162,6 @@ function changeBackgroundColor(color) {
 }
 
 
-let btn_num = 1;
 function addButtonToResultPage() {
 
     const btn = document.createElement('button');
@@ -228,12 +175,31 @@ function addButtonToResultPage() {
     btn.style.left = "10px";  // 예제: 좌측 여백 설정
 
     btn.id = 'btn' + String(btn_num);
-    btn.className += " resizable";
+    btn.classList.add("resizable", "custom-button");
+
+    // 클릭 이벤트 리스너 추가
+    btn.addEventListener('click', function(event) {
+        event.stopPropagation();  // 이벤트 버블링 방지
+        btn_curclick = event.target;
+        console.log('Selected button ID:', btn_curclick.id);
+        document.getElementById("border-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('border-color'));
+        console.log(window.getComputedStyle(event.target).getPropertyValue('border-width'));
+        console.log(window.getComputedStyle(event.target).getPropertyValue('border-radius'));
+        //document.getElementById("border-width-input").value = window.getComputedStyle(event.target).getPropertyValue('border-width');
+        //document.getElementById("border-radius-input").value = window.getComputedStyle(event.target).getPropertyValue('border-radius');
+        document.getElementById("background-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('background-color'));
+        document.getElementById("element-background-opacity").value = window.getComputedStyle(event.target).getPropertyValue('opacity') * 100;
+    });
 
     document.querySelector(".resultpage").appendChild(btn);
     dragElement(document.getElementById('btn' + String(btn_num)));
     document.getElementById('btn' + String(btn_num)).style.zIndex = btn_num;
     btn_num += 1;
+}
+
+function rgbToHex(rgb) {
+    const rgbArray = rgb.match(/\d+/g).map(Number);
+    return `#${((1 << 24) + (rgbArray[0] << 16) + (rgbArray[1] << 8) + rgbArray[2]).toString(16).slice(1).toUpperCase()}`;
 }
 
 function dragElement(element) {
@@ -268,3 +234,111 @@ function dragElement(element) {
     }
 }
 
+///////////////// addEventClickListenr after all contents are loaded ///////////////////////////////
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Call the function to load the HTML into the resultpage element
+    loadHTML('user/preview.html', 'resultpage-container');
+
+    // Adjust the resultpage size on window resize
+    window.addEventListener('resize', adjustResultPageSize);
+
+    // Initial adjustment
+    window.addEventListener('load', () => {
+        currentAspectRatio = '4:3';
+        adjustResultPageSize();
+    });
+
+    // Adjust the resultpage size on aspect ratio change
+    document.getElementById('aspectRatioSelector').addEventListener('change', (e) => {
+        currentAspectRatio = e.target.value;
+        adjustResultPageSize();
+    });
+
+    // Color picker functionality
+    const colorPickerButton = document.getElementById('colorPickerButton');
+    const colorPickerContainer = document.getElementById('colorPickerContainer');
+    const colorPicker = document.getElementById('colorPicker');
+    const hexColorInput = document.getElementById('hexColorInput');
+    const applyColorButton = document.getElementById('applyColorButton');
+    const closeColorPickerButton = document.getElementById('closeColorPickerButton');
+
+    colorPickerButton.addEventListener('click', () => {
+        colorPickerContainer.style.display = 'block';
+    });
+
+    applyColorButton.addEventListener('click', () => {
+        const color = colorPicker.value;
+        const hexColor = hexColorInput.value || color;
+        changeBackgroundColor(hexColor);
+        // saveBackgroundColor(hexColor);
+    });
+
+    closeColorPickerButton.addEventListener('click', () => {
+        colorPickerContainer.style.display = 'none';
+    });
+
+    const downloadButton = document.getElementById('downloadButton');
+    downloadButton.addEventListener('click', () => {
+        if (confirm("정말 파일을 생성 하시겠습니까?")) {
+            createAndDownloadZip();
+        }
+    });
+
+    const addButton = document.getElementById('addButton');
+    addButton.addEventListener('click', () => {
+        addButtonToResultPage();
+    });
+
+    // 스타일 조절 이벤트 핸들러 추가
+    document.getElementById('border-radius-input').addEventListener('change', function() {
+        console.log(btn_curclick.id)
+
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.style.borderRadius = this.value + 'px';
+        }
+    });
+
+    document.getElementById('border-color-input').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.style.borderColor = this.value;
+        }
+    });
+
+    document.getElementById('border-width-input').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.style.borderWidth = this.value + 'px';
+        }
+    });
+
+    document.getElementById('background-color-input').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.style.backgroundColor = this.value;
+        }
+    });
+
+    document.getElementById('element-background-opacity').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.style.opacity = this.value / 100;
+        }
+    });
+
+    document.getElementById('z-index-up').addEventListener('click', function() {
+        if (!btn_curclick || btn_curclick.id === "resultpage") {
+            alert('Select an Element');
+            return;
+        }
+        let zIndex = parseInt(window.getComputedStyle(btn_curclick).getPropertyValue('z-index'));
+        btn_curclick.style.zIndex = zIndex + 1;
+    });
+
+    document.getElementById('z-index-down').addEventListener('click', function() {
+        if (!btn_curclick || btn_curclick.id === "resultpage") {
+            alert('Select an Element');
+            return;
+        }
+        let zIndex = parseInt(window.getComputedStyle(btn_curclick).getPropertyValue('z-index'));
+        btn_curclick.style.zIndex = Math.max(0, zIndex - 1);
+    });
+});
