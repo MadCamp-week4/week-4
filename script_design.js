@@ -1,5 +1,6 @@
 // script_design.js
 let currentAspectRatio = '4:3';
+let currentColor = 'cornflowerblue';
 
 function loadHTML(url, elementId) {
     fetch(url)
@@ -85,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const color = colorPicker.value;
         const hexColor = hexColorInput.value || color;
         changeBackgroundColor(hexColor);
-        saveBackgroundColor(hexColor);
+        // saveBackgroundColor(hexColor);
     });
 
     closeColorPickerButton.addEventListener('click', () => {
@@ -94,8 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Download functionality
     const downloadButton = document.getElementById('downloadButton');
-    const downloadLink = document.getElementById('downloadLink');
-
     downloadButton.addEventListener('click', () => {
         if (confirm("정말 파일을 생성 하시겠습니까?")) {
             createAndDownloadZip();
@@ -104,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function changeBackgroundColor(color) {
+    currentColor = color;
     const resultPage = document.querySelector('#resultpage-container .resultpage');
     if (resultPage) {
         resultPage.style.backgroundColor = color;
@@ -152,32 +152,92 @@ function saveBackgroundColor(color) {
         });
 }
 
+function extractStylesFromResultPage() {
+    const resultPage = document.querySelector('#resultpage-container .resultpage');
+    if (!resultPage) {
+        return Promise.resolve('');
+    }
 
-async function createAndDownloadZip() {
+    const elements = [resultPage, ...resultPage.querySelectorAll('*')];
+    let cssContent = '';
+
+    elements.forEach(element => {
+        const style = window.getComputedStyle(element);
+        let elementCss = `${element.tagName.toLowerCase()}`;
+
+        if (element.id) {
+            elementCss += `#${element.id}`;
+        }
+
+        if (element.className) {
+            elementCss += `.${element.className.split(' ').join('.')}`;
+        }
+
+        elementCss += ' {';
+
+        for (let i = 0; i < style.length; i++) {
+            const propName = style[i];
+            const propValue = style.getPropertyValue(propName);
+            //if (!['width', 'height', 'top', 'left'].includes(propName)) {
+            //    elementCss += `${propName}: ${propValue}; `;
+            //}
+        }
+
+        elementCss += '}';
+        cssContent += elementCss + '\n';
+    });
+
+    return Promise.resolve(cssContent);
+}
+
+function createAndDownloadZip() {
     const zip = new JSZip();
     const folder = zip.folder("user");
 
-    // Fetch and add main.html
-    const mainHtml = await fetch('user/main.html').then(response => response.text());
-    folder.file("main.html", mainHtml);
+    extractStylesFromResultPage()
+        .then(cssContent => {
+            folder.file("styles.css", cssContent);
 
-    // Fetch and add script.js
-    const scriptJs = await fetch('user/script.js').then(response => response.text());
-    folder.file("script.js", scriptJs);
+            // Fetch and add main.html from the DOM
+            const resultPageHTML = document.querySelector('#resultpage-container').innerHTML;
+            const mainHtmlContent = `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>User Web HTML</title>
+                    <link rel="stylesheet" href="./styles.css" type="text/css">
+                </head>
+                <body>
+                    ${resultPageHTML}
+                </body>
+                </html>
+            `;
+            folder.file("main.html", mainHtmlContent);
 
-    // Fetch and add styles.css
-    const stylesCss = await fetch('user/styles.css').then(response => response.text());
-    folder.file("styles.css", stylesCss);
+            // Fetch and add script.js
+            return fetch('user/script.js');
+        })
+        .then(response => response.text())
+        .then(scriptJs => {
+            folder.file("script.js", scriptJs);
 
-    // Generate zip file
-    zip.generateAsync({type:"blob"}).then(function(content) {
-        // Create a link element for download
-        const url = URL.createObjectURL(content);
-        const downloadLink = document.getElementById('downloadLink');
-        downloadLink.href = url;
-        downloadLink.download = 'user_files.zip';
-        downloadLink.style.display = 'blocks';
-        downloadLink.click();
-        downloadLink.style.display = 'none';
-    });
+            // Generate zip file
+            return zip.generateAsync({ type: "blob" });
+        })
+        .then(content => {
+            // Create a link element for download
+            const url = URL.createObjectURL(content);
+            const downloadLink = document.getElementById('downloadLink');
+            downloadLink.href = url;
+            downloadLink.download = 'user_files.zip';
+            downloadLink.style.display = 'block';
+            downloadLink.click();
+            downloadLink.style.display = 'none';
+
+        })
+        .catch(error => {
+            console.error('Error creating zip file:', error);
+        });
 }
