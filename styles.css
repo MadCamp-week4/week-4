@@ -50,6 +50,10 @@ body, html {
 .resizable.bottom-right {
     height: 50%;
     border-bottom: none;
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    flex-direction: column;
 }
 
 .resize-handle-vertical {
@@ -99,9 +103,6 @@ body, html {
     background-color: white;
     border: 1px solid #ccc;
     margin-top: 10px;
-}
-
-#colorPickerButton {
     margin-bottom: 10px;
 }
 

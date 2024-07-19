@@ -20,37 +20,6 @@ function loadHTML(url, elementId) {
         });
 }
 
-function getAspectRatio(aspectRatio) {
-    const [width, height] = aspectRatio.split(':').map(Number);
-    return width / height;
-}
-
-
-function adjustResultPageSize() {
-    const topRight = document.querySelector('.resizable.top-right');
-    const resultPage = document.getElementById('resultpage');
-
-    if (topRight && resultPage) {
-        const topRightRect = topRight.getBoundingClientRect();
-        const aspectRatio = getAspectRatio(currentAspectRatio);
-        let newWidth, newHeight;
-
-        if (topRightRect.width / topRightRect.height > aspectRatio) {
-            newHeight = topRightRect.height;
-            newWidth = newHeight * aspectRatio;
-        } else {
-            newWidth = topRightRect.width;
-            newHeight = newWidth / aspectRatio;
-        }
-
-        resultPage.style.width = `${newWidth}px`;
-        resultPage.style.height = `${newHeight}px`;
-        resultPage.style.top = `${(topRightRect.height - newHeight) / 2}px`;
-        resultPage.style.left = `${(topRightRect.width - newWidth) / 2}px`;
-    }
-}
-
-
 document.addEventListener('DOMContentLoaded', () => {
     // Call the function to load the HTML into the resultpage element
     loadHTML('user/preview.html', 'resultpage-container');
@@ -93,64 +62,54 @@ document.addEventListener('DOMContentLoaded', () => {
         colorPickerContainer.style.display = 'none';
     });
 
-    // Download functionality
     const downloadButton = document.getElementById('downloadButton');
     downloadButton.addEventListener('click', () => {
         if (confirm("정말 파일을 생성 하시겠습니까?")) {
             createAndDownloadZip();
         }
     });
+
+    const addButton = document.getElementById('addButton');
+    addButton.addEventListener('click', () => {
+        addButtonToResultPage();
+    });
 });
 
-function changeBackgroundColor(color) {
-    currentColor = color;
-    const resultPage = document.querySelector('#resultpage-container .resultpage');
-    if (resultPage) {
-        resultPage.style.backgroundColor = color;
+
+
+///////////////// adjust result page ratio ////////////////////////////////////////////////////////////////////////
+
+function getAspectRatio(aspectRatio) {
+    const [width, height] = aspectRatio.split(':').map(Number);
+    return width / height;
+}
+
+
+function adjustResultPageSize() {
+    const topRight = document.querySelector('.resizable.top-right');
+    const resultPage = document.getElementById('resultpage');
+
+    if (topRight && resultPage) {
+        const topRightRect = topRight.getBoundingClientRect();
+        const aspectRatio = getAspectRatio(currentAspectRatio);
+        let newWidth, newHeight;
+
+        if (topRightRect.width / topRightRect.height > aspectRatio) {
+            newHeight = topRightRect.height;
+            newWidth = newHeight * aspectRatio;
+        } else {
+            newWidth = topRightRect.width;
+            newHeight = newWidth / aspectRatio;
+        }
+
+        resultPage.style.width = `${newWidth}px`;
+        resultPage.style.height = `${newHeight}px`;
+        resultPage.style.top = `${(topRightRect.height - newHeight) / 2}px`;
+        resultPage.style.left = `${(topRightRect.width - newWidth) / 2}px`;
     }
 }
 
-function saveBackgroundColor(color) {
-    // Save to preview.html
-    fetch('user/preview.html')
-        .then(response => response.text())
-        .then(html => {
-            const updatedHtml = html.replace(/(<div class="resultpage"[^>]*style="[^"]*background-color:)[^;]+/, `$1 ${color}`);
-            return fetch('user/preview.html', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'text/html'
-                },
-                body: updatedHtml
-            });
-        })
-        .then(() => {
-            console.log('Background color updated in preview.html');
-        })
-        .catch(error => {
-            console.error('Error updating preview.html:', error);
-        });
-
-    // Save to styles.css
-    fetch('user/styles.css')
-        .then(response => response.text())
-        .then(css => {
-            const updatedCss = css.replace(/(body\s*{[^}]*background-color:)[^;]+/, `$1 ${color}`);
-            return fetch('user/styles.css', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'text/css'
-                },
-                body: updatedCss
-            });
-        })
-        .then(() => {
-            console.log('Background color updated in styles.css');
-        })
-        .catch(error => {
-            console.error('Error updating styles.css:', error);
-        });
-}
+///////////////// save style attributes as .css file ////////////////////////////////////////////////////////////////////////
 
 function extractStylesFromResultPage() {
     const resultPage = document.querySelector('#resultpage-container .resultpage');
@@ -179,7 +138,7 @@ function extractStylesFromResultPage() {
             const propName = style[i];
             const propValue = style.getPropertyValue(propName);
             //if (!['width', 'height', 'top', 'left'].includes(propName)) {
-            //    elementCss += `${propName}: ${propValue}; `;
+            elementCss += `${propName}: ${propValue}; `;
             //}
         }
 
@@ -241,3 +200,71 @@ function createAndDownloadZip() {
             console.error('Error creating zip file:', error);
         });
 }
+
+
+
+///////////////// design attributes ////////////////////////////////////////////////////////////////////////
+
+function changeBackgroundColor(color) {
+    currentColor = color;
+    const resultPage = document.querySelector('#resultpage-container .resultpage');
+    if (resultPage) {
+        resultPage.style.backgroundColor = color;
+    }
+}
+
+
+let btn_num = 1;
+function addButtonToResultPage() {
+
+    const btn = document.createElement('button');
+    const btnText = document.createTextNode('Button ' + btn_num);
+    btn.appendChild(btnText);
+
+    btn.style.position = "absolute";
+    btn.style.width = "100px";
+    btn.style.height = "30px";
+    btn.style.top = `${btn_num * 40}px`;  // 예제: 버튼이 겹치지 않게 아래로 쌓이도록 위치 설정
+    btn.style.left = "10px";  // 예제: 좌측 여백 설정
+
+    btn.id = 'btn' + String(btn_num);
+    btn.className += " resizable";
+
+    document.querySelector(".resultpage").appendChild(btn);
+    dragElement(document.getElementById('btn' + String(btn_num)));
+    document.getElementById('btn' + String(btn_num)).style.zIndex = btn_num;
+    btn_num += 1;
+}
+
+function dragElement(element) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    if (element) {
+        element.onmousedown = dragMouseDown;
+    }
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        element.style.top = (element.offsetTop - pos2) + "px";
+        element.style.left = (element.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+    }
+}
+
