@@ -13,7 +13,12 @@
         <div class="designer">
             <div class="resize-handle-horizontal"></div>
             <div class="resizable top-right">
-                <p>Top Right Panel</p>
+                <select id="aspectRatioSelector">
+                    <option value="16:9">16:9</option>
+                    <option value="4:3" selected>4:3</option>
+                    <option value="1:1">1:1</option>
+                </select>
+                <div id="resultpage-container"></div>
             </div>
             <div class="resize-handle-vertical"></div>
             <div class="resizable bottom-right">

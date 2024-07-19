@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const newWidth = window.innerWidth - e.clientX;
             if (newWidth >= 100 && newWidth <= window.innerWidth) {
                 designer.style.width = `${newWidth}px`;
+                adjustResultPageSize();
             }
         }
     }
@@ -47,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 topRight.style.height = `${newHeight}px`;
                 bottomRight.style.height = `${designerRect.height - newHeight}px`;
                 verticalHandle.style.top = `${newHeight - 5}px`; // vertical handle 위치 조정
+                adjustResultPageSize();
             }
         }
     }
