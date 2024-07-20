@@ -203,7 +203,7 @@ function addButtonToResultPage() {
 
 
 /* text boxes **************************/
-
+let isDraggingText = false;
 function addTextboxToResultPage() {
     const txtbox = document.createElement('textarea');
     txtbox.placeholder = "textbox " + txtbox_num;  // 기본 placeholder 설정
@@ -229,8 +229,25 @@ function addTextboxToResultPage() {
         document.getElementById("border-radius-input").value = window.getComputedStyle(event.target).getPropertyValue('border-radius').replace('px', '');
         document.getElementById("background-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('background-color'));
         document.getElementById("element-background-opacity").value = window.getComputedStyle(event.target).getPropertyValue('opacity') * 100;
-
+        document.getElementById('name-input').value = btn_curclick.id; 
         txtbox.focus();
+    });
+
+    txtbox.addEventListener('dblclick', function(event) {
+        event.stopPropagation();
+        btn_curclick = event.target;
+        
+        document.getElementById('font-size-input').value = getFontSize(window.getComputedStyle(event.target).getPropertyValue('font'));
+        document.getElementById('fontname-select').value = getFont(window.getComputedStyle(event.target).getPropertyValue('font'));
+
+        txtbox.removeAttribute('readonly');  // 텍스트 편집 모드 활성화
+        txtbox.focus();
+        isDraggingText = true;
+    });
+
+    txtbox.addEventListener('blur', function() {
+        txtbox.setAttribute('readonly', true);  // 텍스트 편집 모드 비활성화
+        isDraggingText = false;
     });
 
     document.querySelector(".resultpage").appendChild(txtbox);
@@ -251,19 +268,37 @@ function extractFirstPxValue(value) {
     return match ? match[1] : '';
 }
 
+function getFontSize(fontString) {
+    const [size, fontName] = fontString.split(' ');
+    const fontSize = Math.round(parseFloat(size));
+    return fontSize;
+}
+
+function getFont(fontString) {
+    const [size, fontName] = fontString.split(' ');
+    console.log("fontName: ", fontName);
+    return fontName;
+}
 
 function dragElement(element) {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     const resultPage = document.getElementById('resultpage');
+    let isResizing = false;
+
 
     if (element) {
         element.onmousedown = dragMouseDown;
     }
 
     function dragMouseDown(e) {
+        if (e.target.tagName === 'TEXTAREA' && isDraggingText) {
+            return;
+        }
+        
         e = e || window.event;
         const rect = element.getBoundingClientRect();
         const isResizing = e.clientX > rect.right - 10 && e.clientY > rect.bottom - 10;
+
 
         if (isResizing) {
             document.onmousemove = elementResize;
@@ -302,6 +337,7 @@ function dragElement(element) {
     function closeDragElement() {
         document.onmouseup = null;
         document.onmousemove = null;
+        isResizing = false;
     }
 }
 
@@ -368,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addTextboxToResultPage();
     });
 
-    // 스타일 조절 이벤트 핸들러 추가
+    // @element_formatter
     document.getElementById('border-radius-input').addEventListener('change', function() {
         console.log(btn_curclick.id)
 
@@ -418,4 +454,61 @@ document.addEventListener('DOMContentLoaded', () => {
         let zIndex = parseInt(window.getComputedStyle(btn_curclick).getPropertyValue('z-index'));
         btn_curclick.style.zIndex = Math.max(0, zIndex - 1);
     });
+
+    // @text_formatter
+    document.getElementById('name-input').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.id = this.value;
+            toastr.success("Element name set " + this.value);
+        }
+    });
+
+    document.getElementById('text-input').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage" && btn_curclick.tagName !== "DIV") {
+            btn_curclick.innerHTML = this.value;
+        }
+    });
+
+    document.getElementById('font-size-input').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.style.fontSize = this.value + "px";
+        }
+    });
+
+    document.getElementById('font-color-input').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.style.color = this.value;
+        }
+    });
+
+    document.getElementById('fontname-select').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.style.fontFamily = this.value;
+        }
+    });
+
+    document.getElementById('boldButton').addEventListener('click', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.style.fontWeight = btn_curclick.style.fontWeight === 'bold' ? 'normal' : 'bold';
+        }
+    });
+
+    document.getElementById('italicButton').addEventListener('click', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.style.fontStyle = btn_curclick.style.fontStyle === 'italic' ? 'normal' : 'italic';
+        }
+    });
+
+    document.getElementById('superscriptButton').addEventListener('click', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            document.execCommand('superscript');
+        }
+    });
+
+    document.getElementById('subscriptButton').addEventListener('click', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            document.execCommand('subscript');
+        }
+    });
+    
 });
