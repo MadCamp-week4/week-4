@@ -109,3 +109,25 @@ body, html {
 #colorPicker, #hexColorInput {
     margin-bottom: 5px;
 }
+
+.custom-button {
+    position: relative;
+    display: inline-block;
+}
+
+.resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ccc;
+    bottom: 0;
+    right: 0;
+    cursor: se-resize;
+}
+
+.custom-textbox {
+    border: 1px solid #000; 
+    background-color: white;
+    resize: both;
+    overflow: auto;
+}

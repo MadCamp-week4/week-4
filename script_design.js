@@ -5,6 +5,8 @@ let currentColor = 'cornflowerblue';
 let btn_num = 1;
 let btn_curclick = null;
 
+let txtbox_num = 1;
+
 function loadHTML(url, elementId) {
     fetch(url)
         .then(response => {
@@ -162,6 +164,7 @@ function changeBackgroundColor(color) {
 }
 
 
+/* buttons **************************/
 function addButtonToResultPage() {
 
     const btn = document.createElement('button');
@@ -196,6 +199,45 @@ function addButtonToResultPage() {
     btn_num += 1;
 }
 
+
+/* text boxes **************************/
+
+function addTextboxToResultPage() {
+    const txtbox = document.createElement('textarea');
+    txtbox.placeholder = "textbox " + txtbox_num;  // 기본 placeholder 설정
+    txtbox.style.position = "absolute";
+    txtbox.style.width = "200px";
+    txtbox.style.height = "100px";
+    txtbox.style.top = `${txtbox_num * 40}px`;
+    txtbox.style.left = "120px";  // 버튼과 겹치지 않게 위치 설정
+    txtbox.style.backgroundColor = "white";  // 기본 배경색
+    txtbox.style.border = "1px solid #000";  // 기본 테두리
+    txtbox.style.zIndex = txtbox_num;
+
+    txtbox.id = 'txtbox' + String(txtbox_num);
+    txtbox.classList.add("resizable", "custom-textbox");
+
+    // 텍스트 박스 생성 시 클릭 이벤트 리스너 추가
+    txtbox.addEventListener('click', function(event) {
+        event.stopPropagation(); 
+        btn_curclick = event.target;
+        console.log('Selected textbox ID:', btn_curclick.id);
+        document.getElementById("border-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('border-color'));
+        document.getElementById("border-width-input").value = extractFirstPxValue(window.getComputedStyle(event.target).getPropertyValue('border-width'));
+        document.getElementById("border-radius-input").value = window.getComputedStyle(event.target).getPropertyValue('border-radius').replace('px', '');
+        document.getElementById("background-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('background-color'));
+        document.getElementById("element-background-opacity").value = window.getComputedStyle(event.target).getPropertyValue('opacity') * 100;
+
+        txtbox.focus();
+    });
+
+    document.querySelector(".resultpage").appendChild(txtbox);
+    dragElement(document.getElementById('txtbox' + String(txtbox_num)));
+    txtbox_num += 1;
+}
+
+
+/* facilities **************************/
 function rgbToHex(rgb) {
     const rgbArray = rgb.match(/\d+/g).map(Number);
     return `#${((1 << 24) + (rgbArray[0] << 16) + (rgbArray[1] << 8) + rgbArray[2]).toString(16).slice(1).toUpperCase()}`;
@@ -205,6 +247,7 @@ function extractFirstPxValue(value) {
     const match = value.match(/(\d+\.?\d*)px/);
     return match ? match[1] : '';
 }
+
 
 function dragElement(element) {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -293,6 +336,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const addButton = document.getElementById('addButton');
     addButton.addEventListener('click', () => {
         addButtonToResultPage();
+    });
+
+    const addTextboxButton = document.getElementById('addTextBox');
+    addTextboxButton.addEventListener('click', () => {
+        addTextboxToResultPage();
     });
 
     // 스타일 조절 이벤트 핸들러 추가
