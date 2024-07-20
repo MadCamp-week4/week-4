@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // html component가 클릭되었을 때, @html_component_onclick
-
+        
 
         workspace = Blockly.inject(blocklyDiv, {
             toolbox: toolboxDom.documentElement,

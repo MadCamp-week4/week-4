@@ -194,6 +194,8 @@ function addButtonToResultPage() {
     dragElement(document.getElementById('btn' + String(btn_num)));
     document.getElementById('btn' + String(btn_num)).style.zIndex = btn_num;
     btn_num += 1;
+
+    updateDropdownOptions(btn.id);
 }
 
 function rgbToHex(rgb) {
