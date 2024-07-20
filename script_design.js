@@ -5,7 +5,10 @@ let currentColor = 'cornflowerblue';
 let btn_num = 1;
 let btn_curclick = null;
 
+//var test2 = 2;
+
 function loadHTML(url, elementId) {
+    //console.log(updateDropdownOptions);
     fetch(url)
         .then(response => {
             if (!response.ok) {
@@ -190,6 +193,10 @@ function addButtonToResultPage() {
         document.getElementById("background-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('background-color'));
         document.getElementById("element-background-opacity").value = window.getComputedStyle(event.target).getPropertyValue('opacity') * 100;
     });
+
+    //onsole.log(updateDropdownOptions);
+    updateDropdownOptions(btn.id);
+    //console.log(TEST1);
 
     document.querySelector(".resultpage").appendChild(btn);
     dragElement(document.getElementById('btn' + String(btn_num)));
