@@ -6,6 +6,7 @@ let btn_num = 1;
 let btn_curclick = null;
 
 function loadHTML(url, elementId) {
+    //console.log(updateDropdownOptions);
     fetch(url)
         .then(response => {
             if (!response.ok) {
@@ -188,7 +189,6 @@ function addButtonToResultPage() {
         document.getElementById("background-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('background-color'));
         document.getElementById("element-background-opacity").value = window.getComputedStyle(event.target).getPropertyValue('opacity') * 100;
     });
-
 
     document.querySelector(".resultpage").appendChild(btn);
     dragElement(document.getElementById('btn' + String(btn_num)));
