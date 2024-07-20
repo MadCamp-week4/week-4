@@ -8,6 +8,7 @@ let btn_curclick = null;
 let txtbox_num = 1;
 
 function loadHTML(url, elementId) {
+    //console.log(updateDropdownOptions);
     fetch(url)
         .then(response => {
             if (!response.ok) {
@@ -192,11 +193,12 @@ function addButtonToResultPage() {
         document.getElementById("element-background-opacity").value = window.getComputedStyle(event.target).getPropertyValue('opacity') * 100;
     });
 
-
     document.querySelector(".resultpage").appendChild(btn);
     dragElement(document.getElementById('btn' + String(btn_num)));
     document.getElementById('btn' + String(btn_num)).style.zIndex = btn_num;
     btn_num += 1;
+
+    updateDropdownOptions(btn.id);
 }
 
 

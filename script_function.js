@@ -1,4 +1,35 @@
+
+let workspace;
+let customVariables = [];
+
+var TEST1 = 1;
+
+
+const createDropdownOptions = (variables) => {
+        return variables.map(variable => [variable, variable]);
+    };
+
+
+    // 드롭다운 업데이트 함수
+var updateDropdownOptions = (elementId) => 
+{
+    customVariables.push(elementId);
+    const blocks = workspace.getAllBlocks();
+    blocks.forEach(block => {
+        if (block.type === 'html_component_id') {
+            const dropdown = block.getField('HTML_COMPONENT');
+            if (dropdown) {
+                dropdown.menuGenerator_ = createDropdownOptions(customVariables);
+                dropdown.setValue(elementId); // 새로 추가된 항목을 기본값으로 설정
+            }
+        }
+    });
+};
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
+    //console.log("btn_num",btn_num);
     const blocklyDiv = document.querySelector('#blocklyDiv');
     const generateCodeButton = document.getElementById('generateCodeButton');
 
@@ -6,13 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultpageContainer = document.getElementById('resultpage-container');
 
     // JavaScript 상의 변수 목록
-    const childElements = resultpageContainer.querySelectorAll('[id]');
-    const customVariables = Array.from(childElements).map(v => v.id);
+    let childElements = resultpageContainer.querySelectorAll('[id]');
+    customVariables = Array.from(childElements).map(v => v.id);
 
     // 변수 목록을 위한 함수
-    const createDropdownOptions = (variables) => {
-        return variables.map(variable => [variable, variable]);
-    };
+    
+
+
+    window.updateDropdownOptions = updateDropdownOptions;
 
     fetch('toolbox.xml')
       .then(response => response.text())
@@ -20,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const parser = new DOMParser();
         const toolboxDom = parser.parseFromString(toolboxXml, 'text/xml');
 
-        // component의 id가져오기,
+        // component의 id가져오기, @html_component_id
         Blockly.Blocks['html_component_id'] = {
             init: function() {
                 this.appendDummyInput()
@@ -40,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return [code, Blockly.JavaScript.ORDER_NONE];
         };
 
-        // get variables with type "HTML_COMPONENT" and return text 
+        // get variables with type "HTML_COMPONENT" and return text, @html_component_innerText
         Blockly.Blocks['html_component_innerText'] = {
             init: function() {
               this.appendValueInput("NAME")
@@ -61,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return [code, Blockly.JavaScript.ORDER_NONE];
         };
 
-        //html component의 색깔 가져오기
+        //html component의 색깔 가져오기, @html_component_color
         Blockly.Blocks['html_component_color'] = {
             init: function() {
               this.appendValueInput("NAME")
@@ -82,12 +114,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return [code, Blockly.JavaScript.ORDER_NONE];
         };
 
+        // html component가 클릭되었을 때, @html_component_onclick
+        
 
-        const workspace = Blockly.inject(blocklyDiv, {
+        workspace = Blockly.inject(blocklyDiv, {
             toolbox: toolboxDom.documentElement,
             theme: Blockly.Themes.Classic,
         });
         
+        window.updateDropdownOptions = updateDropdownOptions; 
 
         Blockly.svgResize(workspace);
 
