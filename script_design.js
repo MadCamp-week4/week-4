@@ -5,8 +5,6 @@ let currentColor = 'cornflowerblue';
 let btn_num = 1;
 let btn_curclick = null;
 
-//var test2 = 2;
-
 function loadHTML(url, elementId) {
     //console.log(updateDropdownOptions);
     fetch(url)
@@ -180,23 +178,17 @@ function addButtonToResultPage() {
     btn.id = 'btn' + String(btn_num);
     btn.classList.add("resizable", "custom-button");
 
-    // 클릭 이벤트 리스너 추가
+    // 버튼 생성 시 클릭 이벤트 리스너 추가
     btn.addEventListener('click', function(event) {
         event.stopPropagation();  // 이벤트 버블링 방지
         btn_curclick = event.target;
         console.log('Selected button ID:', btn_curclick.id);
         document.getElementById("border-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('border-color'));
-        console.log(window.getComputedStyle(event.target).getPropertyValue('border-width'));
-        console.log(window.getComputedStyle(event.target).getPropertyValue('border-radius'));
-        //document.getElementById("border-width-input").value = window.getComputedStyle(event.target).getPropertyValue('border-width');
-        //document.getElementById("border-radius-input").value = window.getComputedStyle(event.target).getPropertyValue('border-radius');
+        document.getElementById("border-width-input").value = extractFirstPxValue(window.getComputedStyle(event.target).getPropertyValue('border-width'));
+        document.getElementById("border-radius-input").value = window.getComputedStyle(event.target).getPropertyValue('border-radius').replace('px', '');
         document.getElementById("background-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('background-color'));
         document.getElementById("element-background-opacity").value = window.getComputedStyle(event.target).getPropertyValue('opacity') * 100;
     });
-
-    //onsole.log(updateDropdownOptions);
-    updateDropdownOptions(btn.id);
-    //console.log(TEST1);
 
     document.querySelector(".resultpage").appendChild(btn);
     dragElement(document.getElementById('btn' + String(btn_num)));
@@ -207,6 +199,11 @@ function addButtonToResultPage() {
 function rgbToHex(rgb) {
     const rgbArray = rgb.match(/\d+/g).map(Number);
     return `#${((1 << 24) + (rgbArray[0] << 16) + (rgbArray[1] << 8) + rgbArray[2]).toString(16).slice(1).toUpperCase()}`;
+}
+
+function extractFirstPxValue(value) {
+    const match = value.match(/(\d+\.?\d*)px/);
+    return match ? match[1] : '';
 }
 
 function dragElement(element) {
