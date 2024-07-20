@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resizable Panels</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
 </head>
 
 <body>
@@ -13,11 +14,36 @@
         <div class="designer">
             <div class="resize-handle-horizontal"></div>
             <div class="resizable top-right">
-                <p>Top Right Panel</p>
+                <select id="aspectRatioSelector">
+                    <option value="16:9">16:9</option>
+                    <option value="4:3" selected>4:3</option>
+                    <option value="1:1">1:1</option>
+                </select>
+                <div id="resultpage-container"></div>
             </div>
             <div class="resize-handle-vertical"></div>
             <div class="resizable bottom-right">
-                <p>Bottom Right Panel</p>
+                <button id="colorPickerButton">Change Background Color</button>
+                <div id="colorPickerContainer" style="display: none;">
+                    <input type="color" id="colorPicker">
+                    <input type="text" id="hexColorInput" placeholder="#000000">
+                    <button id="applyColorButton">Apply</button>
+                    <button id="closeColorPickerButton">Close</button>
+                </div>
+                <button id="addButton">Add Button</button>
+                <button id="downloadButton">Download Files</button>
+                <a id="downloadLink" style="display: none;">Download</a>
+
+                <div class="button-format">
+                    <span>Button Format: </span>
+                    <input type="color" id="border-color-input" title="Border Color">
+                    <input type="number" id="border-width-input" placeholder="Border Width" title="Border Width">
+                    <input type="number" id="border-radius-input" placeholder="Border Radius" title="Border Radius">
+                    <input type="color" id="background-color-input" title="Background Color">
+                    <input type="range" id="element-background-opacity" min="0" max="100" title="Opacity">
+                    <button id="z-index-up" title="Z-Index Up">Up</button>
+                    <button id="z-index-down" title="Z-Index Down">Down</button>
+                </div>
             </div>
         </div>
     </div>
