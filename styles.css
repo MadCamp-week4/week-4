@@ -114,6 +114,7 @@ body, html {
     /* position: relative; */
     display: inline-block;
     resize: both;
+    background-color: white;
     /* min-height: 50px;
     min-width: 50px; */
     max-height: 300px;
@@ -123,10 +124,11 @@ body, html {
 .custom-textbox {
     /* position: relative; */
     border: 1px solid #000;
-    background-color: white;
     resize: both;
+    background-color: white;
     /* min-height: 50px;
     min-width: 50px; */
+    text-align: center;
     max-height: 300px;
     max-width: 400px;
 }
