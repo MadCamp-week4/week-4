@@ -79,7 +79,7 @@ body, html {
 }
 
 .resultpage {
-    position: absolute;
+    position: relative;
     overflow: auto;
     background-color: cornflowerblue;
     border: 1px solid #ccc;
@@ -111,24 +111,30 @@ body, html {
 }
 
 .custom-button {
-    position: relative;
+    /* position: relative; */
     display: inline-block;
     resize: both;
-    min-height: 50px;
-    min-width: 50px;
+    /* min-height: 50px;
+    min-width: 50px; */
     max-height: 300px;
     max-width: 400px;
 }
 
 .custom-textbox {
+    /* position: relative; */
     border: 1px solid #000;
     background-color: white;
     resize: both;
-    min-height: 50px;
-    min-width: 50px;
+    /* min-height: 50px;
+    min-width: 50px; */
     max-height: 300px;
     max-width: 400px;
-    position: relative;
+}
+
+.custom-textbox[contenteditable]:empty:before {
+    content: attr(data-placeholder);
+    color: grey;
+    pointer-events: none;
 }
 
 .text-controls {
