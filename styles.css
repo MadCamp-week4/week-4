@@ -129,6 +129,8 @@ body, html {
     /* min-height: 50px;
     min-width: 50px; */
     text-align: center;
+    justify-content: center;
+    align-items: center;
     max-height: 300px;
     max-width: 400px;
 }
