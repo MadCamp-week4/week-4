@@ -1,6 +1,12 @@
 
 let workspace;
 let customVariables = [];
+const API_KEY = "76e081612384877ee93d93d579dc2992";
+
+
+
+var HTML_values = ["innerText","backgroundColor"];
+var JS_code = "";
 
 var TEST1 = 1;
 
@@ -39,9 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // JavaScript 상의 변수 목록
     let childElements = resultpageContainer.querySelectorAll('[id]');
     customVariables = Array.from(childElements).map(v => v.id);
-
-    // 변수 목록을 위한 함수
-    
 
 
     window.updateDropdownOptions = updateDropdownOptions;
@@ -115,8 +118,70 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // html component가 클릭되었을 때, @html_component_onclick
-        
+        Blockly.Blocks['html_component_onclick'] = {
+            init: function() {
+              this.appendValueInput("NAME")
+                  .setCheck("HTML_COMPONENT")
+                  .appendField("Onclick");
+              this.appendStatementInput("STATEMENT")
+              .setCheck(null);
+              this.setColour(160);
+              this.setTooltip("Onclick of HTML Component");
+              this.setHelpUrl("");
+              this.setOutput(false, null);
+            }
+          };
 
+        Blockly.JavaScript.forBlock['html_component_onclick'] = function(block,generator) {
+            var htmlComponent = Blockly.JavaScript.valueToCode(block, 'NAME', javascript.Order.ATOMIC);
+            var statements_statement = Blockly.JavaScript.statementToCode(block, 'STATEMENT');
+
+            console.log(statements_statement);
+
+            var code = `document.getElementById${htmlComponent}.addEventListener('click', () => {
+                ${statements_statement}
+            });`;
+            return code;
+        };
+        
+        //html component의 내부 값들을 set할 수 있음 @set_html_component_value
+
+        Blockly.Blocks['set_html_component_value'] = {
+            init: function() {
+              this.appendValueInput("FROM")
+                  .setCheck("HTML_COMPONENT")
+                  .appendField("Set")
+                  .appendField(new Blockly.FieldDropdown(createDropdownOptions(HTML_values)),'HTML_VALUES')
+                  .appendField("of");
+              this.appendDummyInput()
+                  .appendField("to");
+              this.appendValueInput("TO")
+                  .setCheck(null);
+              this.setPreviousStatement(true, null);
+              this.setNextStatement(true, null);
+              this.setColour(100);
+           this.setTooltip("");
+           this.setHelpUrl("");
+            }
+          };
+
+          javascript.javascriptGenerator.forBlock['set_html_component_value'] = function(block, generator) {
+            var variable_name = generator.nameDB_.getName(block.getFieldValue('HTML_VALUES'), Blockly.Variables.NAME_TYPE);
+            var value_from = generator.valueToCode(block, 'FROM', javascript.Order.ATOMIC);
+            var value_to = generator.valueToCode(block, 'TO', javascript.Order.ATOMIC);
+            var code = '';
+
+            if(variable_name == "innerText") {
+                code = `document.getElementById${value_from}.innerText = ${value_to};`;
+            }
+            else if(variable_name == "backgroundColor"){
+                code = `document.getElementById${value_from}.style.backgroundColor = ${value_to};`;
+            }
+            return code;
+          };
+
+
+        //workspace 저장
         workspace = Blockly.inject(blocklyDiv, {
             toolbox: toolboxDom.documentElement,
             theme: Blockly.Themes.Classic,
@@ -130,6 +195,9 @@ document.addEventListener('DOMContentLoaded', () => {
         generateCodeButton.addEventListener('click', () => {
             const code = Blockly.JavaScript.workspaceToCode(workspace);
             console.log(code);
+            JS_code = "document.addEventListener('DOMContentLoaded', () => {\n" + code + "\n})";
+
+
         });
       })
       .catch(error => console.error('Error loading toolbox:', error));

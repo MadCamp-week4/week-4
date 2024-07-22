@@ -130,6 +130,7 @@ function createAndDownloadZip() {
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>User Web HTML</title>
                     <link rel="stylesheet" href="./styles.css" type="text/css">
+                    <script src = "script.js"> </script>
                 </head>
                 <body>
                     ${resultPageHTML}
@@ -137,14 +138,14 @@ function createAndDownloadZip() {
                 </html>
             `;
             folder.file("main.html", mainHtmlContent);
-
-            // Fetch and add script.js
+            folder.file("script.js",JS_code);
+            /*// Fetch and add script.js
             return fetch('user/script.js');
         })
         .then(response => response.text())
         .then(scriptJs => {
             folder.file("script.js", scriptJs);
-
+*/
             // Generate zip file
             return zip.generateAsync({ type: "blob" });
         })
