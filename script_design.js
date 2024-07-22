@@ -205,7 +205,8 @@ function addButtonToResultPage() {
 /* text boxes **************************/
 let isDraggingText = false;
 function addTextboxToResultPage() {
-    const txtbox = document.createElement('textarea');
+    const txtbox = document.createElement('div');
+    txtbox.contentEditable = true;
     txtbox.placeholder = "textbox " + txtbox_num;  // 기본 placeholder 설정
     txtbox.style.position = "absolute";
     txtbox.style.width = "200px";
@@ -230,6 +231,12 @@ function addTextboxToResultPage() {
         document.getElementById("background-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('background-color'));
         document.getElementById("element-background-opacity").value = window.getComputedStyle(event.target).getPropertyValue('opacity') * 100;
         document.getElementById('name-input').value = btn_curclick.id; 
+
+        document.getElementById('font-size-input').value = getFontSize(window.getComputedStyle(event.target).getPropertyValue('font'));
+        document.getElementById('fontname-select').value = getFont(window.getComputedStyle(event.target).getPropertyValue('font'));
+
+        txtbox.contentEditable = false;  // 텍스트 편집 모드 비활성화
+        isDraggingText = false;
         txtbox.focus();
     });
 
@@ -237,10 +244,7 @@ function addTextboxToResultPage() {
         event.stopPropagation();
         btn_curclick = event.target;
         
-        document.getElementById('font-size-input').value = getFontSize(window.getComputedStyle(event.target).getPropertyValue('font'));
-        document.getElementById('fontname-select').value = getFont(window.getComputedStyle(event.target).getPropertyValue('font'));
-
-        txtbox.removeAttribute('readonly');  // 텍스트 편집 모드 활성화
+        txtbox.contentEditable = true;  // 더블 클릭 시 편집 모드 활성화
         txtbox.focus();
         isDraggingText = true;
     });
@@ -269,13 +273,17 @@ function extractFirstPxValue(value) {
 }
 
 function getFontSize(fontString) {
-    const [size, fontName] = fontString.split(' ');
-    const fontSize = Math.round(parseFloat(size));
+    console.log("fontString: ", fontString);
+    const match = fontString.match(/^(\d+)px\s+["]?([\s\S]+?)["]?$/);
+    const fontSize = match[1];
+    console.log("fontSize: ", fontSize);
     return fontSize;
 }
 
 function getFont(fontString) {
-    const [size, fontName] = fontString.split(' ');
+    console.log("fontString: ", fontString);
+    const match = fontString.match(/^(\d+)px\s+["]?([\s\S]+?)["]?$/);
+    const fontName = match[2];
     console.log("fontName: ", fontName);
     return fontName;
 }
@@ -291,10 +299,11 @@ function dragElement(element) {
     }
 
     function dragMouseDown(e) {
-        if (e.target.tagName === 'TEXTAREA' && isDraggingText) {
-            return;
+        if (isDraggingText) {
+            element.contentEditable = true;
+            element.focus();
+            return
         }
-        
         e = e || window.event;
         const rect = element.getBoundingClientRect();
         const isResizing = e.clientX > rect.right - 10 && e.clientY > rect.bottom - 10;
@@ -456,12 +465,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // @text_formatter
-    document.getElementById('name-input').addEventListener('change', function() {
-        if (btn_curclick && btn_curclick.id !== "resultpage") {
-            btn_curclick.id = this.value;
-            toastr.success("Element name set " + this.value);
-        }
-    });
+    // document.getElementById('name-input').addEventListener('change', function() {
+    //     if (btn_curclick && btn_curclick.id !== "resultpage") {
+    //         btn_curclick.id = this.value;
+    //         toastr.success("Element name set " + this.value);
+    //     }
+    // });
 
     document.getElementById('text-input').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== "resultpage" && btn_curclick.tagName !== "DIV") {
@@ -510,5 +519,5 @@ document.addEventListener('DOMContentLoaded', () => {
             document.execCommand('subscript');
         }
     });
-    
+
 });
