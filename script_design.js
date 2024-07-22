@@ -1,5 +1,5 @@
 // script_design.js
-let currentAspectRatio = '4:3';
+let currentAspectRatio = '16:9';
 let currentColor = 'cornflowerblue';
 
 let btn_num = 1;
@@ -8,7 +8,7 @@ let btn_curclick = null;
 let txtbox_num = 1;
 
 function loadHTML(url, elementId) {
-    //console.log(updateDropdownOptions);
+
     fetch(url)
         .then(response => {
             if (!response.ok) {
@@ -167,7 +167,6 @@ function changeBackgroundColor(color) {
 
 /* buttons **************************/
 function addButtonToResultPage() {
-
     const btn = document.createElement('button');
     const btnText = document.createTextNode('Button ' + btn_num);
     btn.appendChild(btnText);
@@ -175,8 +174,9 @@ function addButtonToResultPage() {
     btn.style.position = "absolute";
     btn.style.width = "100px";
     btn.style.height = "30px";
-    btn.style.top = `${btn_num * 40}px`;  // 예제: 버튼이 겹치지 않게 아래로 쌓이도록 위치 설정
-    btn.style.left = "10px";  // 예제: 좌측 여백 설정
+    btn.style.top = `${btn_num * 40}px`;
+    btn.style.left = "10px";
+    btn.style.resize = "true"
 
     btn.id = 'btn' + String(btn_num);
     btn.classList.add("resizable", "custom-button");
@@ -203,17 +203,18 @@ function addButtonToResultPage() {
 
 
 /* text boxes **************************/
-
+let isDraggingText = false;
 function addTextboxToResultPage() {
-    const txtbox = document.createElement('textarea');
+    const txtbox = document.createElement('div');
+    txtbox.contentEditable = true;
     txtbox.placeholder = "textbox " + txtbox_num;  // 기본 placeholder 설정
     txtbox.style.position = "absolute";
     txtbox.style.width = "200px";
     txtbox.style.height = "100px";
     txtbox.style.top = `${txtbox_num * 40}px`;
     txtbox.style.left = "120px";  // 버튼과 겹치지 않게 위치 설정
-    txtbox.style.backgroundColor = "white";  // 기본 배경색
-    txtbox.style.border = "1px solid #000";  // 기본 테두리
+    txtbox.style.backgroundColor = "white"; 
+    txtbox.style.border = "1px solid #000";
     txtbox.style.zIndex = txtbox_num;
 
     txtbox.id = 'txtbox' + String(txtbox_num);
@@ -229,12 +230,33 @@ function addTextboxToResultPage() {
         document.getElementById("border-radius-input").value = window.getComputedStyle(event.target).getPropertyValue('border-radius').replace('px', '');
         document.getElementById("background-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('background-color'));
         document.getElementById("element-background-opacity").value = window.getComputedStyle(event.target).getPropertyValue('opacity') * 100;
+        document.getElementById('name-input').value = btn_curclick.id; 
 
+        document.getElementById('font-size-input').value = getFontSize(window.getComputedStyle(event.target).getPropertyValue('font'));
+        document.getElementById('fontname-select').value = getFont(window.getComputedStyle(event.target).getPropertyValue('font'));
+
+        txtbox.contentEditable = false;  // 텍스트 편집 모드 비활성화
+        isDraggingText = false;
         txtbox.focus();
     });
 
+    txtbox.addEventListener('dblclick', function(event) {
+        event.stopPropagation();
+        btn_curclick = event.target;
+        
+        txtbox.contentEditable = true;  // 더블 클릭 시 편집 모드 활성화
+        txtbox.focus();
+        isDraggingText = true;
+    });
+
+    txtbox.addEventListener('blur', function() {
+        txtbox.setAttribute('readonly', true);  // 텍스트 편집 모드 비활성화
+        isDraggingText = false;
+    });
+
     document.querySelector(".resultpage").appendChild(txtbox);
-    dragElement(document.getElementById('txtbox' + String(txtbox_num)));
+
+    dragElement(txtbox);
     txtbox_num += 1;
 }
 
@@ -250,20 +272,53 @@ function extractFirstPxValue(value) {
     return match ? match[1] : '';
 }
 
+function getFontSize(fontString) {
+    console.log("fontString: ", fontString);
+    const match = fontString.match(/^(\d+)px\s+["]?([\s\S]+?)["]?$/);
+    const fontSize = match[1];
+    console.log("fontSize: ", fontSize);
+    return fontSize;
+}
+
+function getFont(fontString) {
+    console.log("fontString: ", fontString);
+    const match = fontString.match(/^(\d+)px\s+["]?([\s\S]+?)["]?$/);
+    const fontName = match[2];
+    console.log("fontName: ", fontName);
+    return fontName;
+}
 
 function dragElement(element) {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    const resultPage = document.getElementById('resultpage');
+    let isResizing = false;
+
+
     if (element) {
         element.onmousedown = dragMouseDown;
     }
 
     function dragMouseDown(e) {
+        if (isDraggingText) {
+            element.contentEditable = true;
+            element.focus();
+            return
+        }
         e = e || window.event;
-        e.preventDefault();
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
+        const rect = element.getBoundingClientRect();
+        const isResizing = e.clientX > rect.right - 10 && e.clientY > rect.bottom - 10;
+
+
+        if (isResizing) {
+            document.onmousemove = elementResize;
+            document.onmouseup = closeDragElement;
+        } else {
+            e.preventDefault();
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+        }
     }
 
     function elementDrag(e) {
@@ -273,15 +328,28 @@ function dragElement(element) {
         pos2 = pos4 - e.clientY;
         pos3 = e.clientX;
         pos4 = e.clientY;
-        element.style.top = (element.offsetTop - pos2) + "px";
-        element.style.left = (element.offsetLeft - pos1) + "px";
+
+        const newTop = Math.max(0, Math.min(resultPage.offsetHeight - element.offsetHeight, element.offsetTop - pos2));
+        const newLeft = Math.max(0, Math.min(resultPage.offsetWidth - element.offsetWidth, element.offsetLeft - pos1));
+
+        element.style.top = newTop + "px";
+        element.style.left = newLeft + "px";
+    }
+
+    function elementResize(e) {
+        e.preventDefault();
+        const rect = element.getBoundingClientRect();
+        element.style.width = (e.clientX - rect.left) + 'px';
+        element.style.height = (e.clientY - rect.top) + 'px';
     }
 
     function closeDragElement() {
         document.onmouseup = null;
         document.onmousemove = null;
+        isResizing = false;
     }
 }
+
 
 ///////////////// addEventClickListenr after all contents are loaded ///////////////////////////////
 
@@ -295,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial adjustment
     window.addEventListener('load', () => {
-        currentAspectRatio = '4:3';
+        currentAspectRatio = '16:9';
         adjustResultPageSize();
     });
 
@@ -345,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addTextboxToResultPage();
     });
 
-    // 스타일 조절 이벤트 핸들러 추가
+    // @element_formatter
     document.getElementById('border-radius-input').addEventListener('change', function() {
         console.log(btn_curclick.id)
 
@@ -395,4 +463,61 @@ document.addEventListener('DOMContentLoaded', () => {
         let zIndex = parseInt(window.getComputedStyle(btn_curclick).getPropertyValue('z-index'));
         btn_curclick.style.zIndex = Math.max(0, zIndex - 1);
     });
+
+    // @text_formatter
+    // document.getElementById('name-input').addEventListener('change', function() {
+    //     if (btn_curclick && btn_curclick.id !== "resultpage") {
+    //         btn_curclick.id = this.value;
+    //         toastr.success("Element name set " + this.value);
+    //     }
+    // });
+
+    document.getElementById('text-input').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage" && btn_curclick.tagName !== "DIV") {
+            btn_curclick.innerHTML = this.value;
+        }
+    });
+
+    document.getElementById('font-size-input').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.style.fontSize = this.value + "px";
+        }
+    });
+
+    document.getElementById('font-color-input').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.style.color = this.value;
+        }
+    });
+
+    document.getElementById('fontname-select').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.style.fontFamily = this.value;
+        }
+    });
+
+    document.getElementById('boldButton').addEventListener('click', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.style.fontWeight = btn_curclick.style.fontWeight === 'bold' ? 'normal' : 'bold';
+        }
+    });
+
+    document.getElementById('italicButton').addEventListener('click', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            btn_curclick.style.fontStyle = btn_curclick.style.fontStyle === 'italic' ? 'normal' : 'italic';
+        }
+    });
+
+    document.getElementById('superscriptButton').addEventListener('click', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            document.execCommand('superscript');
+        }
+    });
+
+    document.getElementById('subscriptButton').addEventListener('click', function() {
+        if (btn_curclick && btn_curclick.id !== "resultpage") {
+            document.execCommand('subscript');
+        }
+    });
+
 });

@@ -113,21 +113,43 @@ body, html {
 .custom-button {
     position: relative;
     display: inline-block;
-}
-
-.resize-handle {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background: #ccc;
-    bottom: 0;
-    right: 0;
-    cursor: se-resize;
+    resize: both;
+    min-height: 50px;
+    min-width: 50px;
+    max-height: 300px;
+    max-width: 400px;
 }
 
 .custom-textbox {
-    border: 1px solid #000; 
+    border: 1px solid #000;
     background-color: white;
     resize: both;
-    overflow: auto;
+    min-height: 50px;
+    min-width: 50px;
+    max-height: 300px;
+    max-width: 400px;
+    position: relative;
+}
+
+.text-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 10px;
+    gap: 5px;
+}
+
+.text-controls label, 
+.text-controls input, 
+.text-controls select, 
+.text-controls button {
+    margin: 0 5px;
+}
+
+#boldButton, 
+#italicButton, 
+#superscriptButton, 
+#subscriptButton {
+    font-weight: bold;
+    margin-right: 5px;
 }
