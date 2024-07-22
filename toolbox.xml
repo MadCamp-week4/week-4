@@ -338,12 +338,13 @@
       custom="PROCEDURE"></category>
 
       <category name="HTML components" colour = "160" >
-      <block type="html_component_innerText"></block>
       <block type = "html_component_id"></block>
+      <block type="html_component_innerText"></block>
       <block type = "html_component_color"></block>
+      <block type = "set_html_component_value"></block>
       </category>
 
       <category name = "Event Listener" colour = "100">
-      <block type = "htmp_component_onclick"></block>
+      <block type = "html_component_onclick"></block>
       </category>
   </xml>
