@@ -10,6 +10,36 @@ let txtbox_num = 1;
 let windowCount = 1;
 let currentWindow = 'window1';
 
+let cssMap = {
+    '#window1': {},
+    '.resultpage': {
+        'position': 'relative',
+        'overflow': 'auto',
+        'background-color': 'cornflowerblue',
+        'border': '1px solid #ccc'
+    },
+    '.custom-button': {
+        'display': 'inline-block',
+        'resize': 'both',
+        'background-color': 'white',
+        'max-height': '300px',
+        'max-width': '400px'
+    },
+    '.custom-textbox': {
+        'border': '1px solid #000',
+        'background-color': 'white',
+        'resize': 'both',
+        'text-align': 'center',
+        'max-height': '300px',
+        'max-width': '400px'
+    },
+    '.custom-textbox[contenteditable]:empty:before': {
+        'content': 'attr(data-placeholder)',
+        'color': 'grey',
+        'pointer-events': 'none'
+    }
+};
+
 function loadHTML(url, elementId) {
 
     fetch(url)
@@ -28,14 +58,6 @@ function loadHTML(url, elementId) {
         });
 }
 
-
-function saveElementOriginalSizeAndPosition(element) {
-    const rect = element.getBoundingClientRect();
-    element.dataset.originalWidth = rect.width;
-    element.dataset.originalHeight = rect.height;
-    element.dataset.originalTop = rect.top;
-    element.dataset.originalLeft = rect.left;
-}
 
 ///////////////// adjust result page ratio ////////////////////////////////////////////////////////////////////////
 
@@ -67,56 +89,57 @@ function adjustResultPageSize() {
 
         resultPage.style.width = `${newWidth}px`;
         resultPage.style.height = `${newHeight}px`;
-        resultPage.style.top = `${(topRightRect.height - newHeight) / 2}px`;
-        resultPage.style.left = `${(topRightRect.width - newWidth) / 2}px`;
+
+        cssId = '#' + currentWindow;
+        cssMap[cssId]['width'] = window.getComputedStyle(resultPage).getPropertyValue('width');
+        cssMap[cssId]['height'] = window.getComputedStyle(resultPage).getPropertyValue('height');
+        // resultPage.style.top = `${(topRightRect.height - newHeight) / 2}px`;
+        // resultPage.style.left = `${(topRightRect.width - newWidth) / 2}px`;
     }
 }
 
 ///////////////// save style attributes as .css file ////////////////////////////////////////////////////////////////////////
 
-function extractStylesFromResultPage() {
-    const resultPage = document.querySelector('#resultpage-container .resultpage');
-    if (!resultPage) {
-        return Promise.resolve('');
-    }
+function parseCssMapToJson(cssMap) {
+    return new Promise((resolve) => {
+        let cssString = '';
 
-    const elements = [resultPage, ...resultPage.querySelectorAll('*')];
-    let cssContent = '';
+        for (const [selector, styles] of Object.entries(cssMap)) {
+            cssString += `${selector} {\n`;
 
-    elements.forEach(element => {
-        const style = window.getComputedStyle(element);
-        let elementCss = `${element.tagName.toLowerCase()}`;
+            // Border properties
+            if (styles['border-radius-input']) {
+                cssString += `    border-radius: ${styles['border-radius-input']};\n`;
+                delete styles['border-radius-input'];
+            }
 
-        if (element.id) {
-            elementCss += `#${element.id}`;
+            for (const [property, value] of Object.entries(styles)) {
+                if (property === 'backgroundColor') {
+                    cssString += `    background-color: ${value};\n`;
+                } else if (property === 'fontSize') {
+                    cssString += `    font-size: ${value};\n`;
+                } else if (property === 'fontFamily') {
+                    cssString += `    font-family: ${value};\n`;
+                } else if (property === 'opacity') {
+                    cssString += `    opacity: ${value};\n`;
+                } else {
+                    cssString += `    ${property}: ${value};\n`;
+                }
+            }
+            cssString += '}\n';
         }
+        console.log(cssString);
 
-        if (element.className) {
-            elementCss += `.${element.className.split(' ').join('.')}`;
-        }
-
-        elementCss += ' {';
-
-        for (let i = 0; i < style.length; i++) {
-            const propName = style[i];
-            const propValue = style.getPropertyValue(propName);
-            //if (!['width', 'height', 'top', 'left'].includes(propName)) {
-            elementCss += `${propName}: ${propValue}; `;
-            //}
-        }
-
-        elementCss += '}';
-        cssContent += elementCss + '\n';
+        resolve(cssString);
     });
-
-    return Promise.resolve(cssContent);
 }
 
 function createAndDownloadZip() {
     const zip = new JSZip();
     const folder = zip.folder("user");
 
-    extractStylesFromResultPage()
+    // extractStylesFromResultPage()
+    parseCssMapToJson(cssMap)
         .then(cssContent => {
             folder.file("styles.css", cssContent);
 
@@ -179,7 +202,8 @@ function addWindow() {
     document.querySelectorAll('.resultpage').forEach(win => {
         win.style.display = win.id === currentWindow ? 'block' : 'none';
     });
-    console.log('addWindow: ', currentWindow);
+    cssId = '#window' + windowCount;
+    cssMap[cssId] = {};
 }
 
 function getWindowNumber(windowId) {
@@ -191,7 +215,8 @@ function deleteWindow() {
     if (currentWindow !== 'window1') {
         const windowToDelete = document.getElementById(currentWindow);
         const windowNumToDelete = getWindowNumber(windowToDelete.id);
-        console.log(windowNumToDelete);
+        cssIdToDelete = '#window' + windowNumToDelete;
+        delete cssMap[cssIdToDelete];
 
         windowToDelete.parentNode.removeChild(windowToDelete);
         windowCount--;
@@ -200,18 +225,20 @@ function deleteWindow() {
         document.querySelectorAll('.resultpage').forEach(win => {
             var winId = getWindowNumber(win.id);
             if (winId > windowNumToDelete) {
+                cssOldId = '#window' + winId;
                 win.id = 'window' + --winId;
+                cssNewId = '#window' + winId;
+                cssMap[cssNewId] = cssMap[cssOldId]
+                delete cssMap[cssOldId];
             }
             win.style.display = win.id === currentWindow ? 'block' : 'none';
         });
     }
-    console.log('deleteWindow: ', currentWindow);
 }
 
 function updateWindowButtons() {
     const windowButtonsContainer = document.getElementById('window-buttons');
     windowButtonsContainer.innerHTML = '';
-    console.log('updateWindowButtons: ', currentWindow);
     for (let i = 1; i <= windowCount; i++) {
         const windowButton = document.createElement('button');
         windowButton.textContent = 'Window ' + i;
@@ -236,6 +263,11 @@ function changeBackgroundColor(color) {
     if (resultPage) {
         resultPage.style.backgroundColor = color;
     }
+    cssId = '#' + currentWindow;
+    if (!cssMap[cssId]) {
+        cssMap[cssId] = {};
+    }
+    cssMap[cssId]['background-color'] = color;
 }
 
 
@@ -250,7 +282,7 @@ function addButtonToResultPage() {
     btn.style.height = "15%";
     btn.style.top = `${btn_num * 11}%`;
     btn.style.left = "10%";
-    btn.style.resize = "true"
+    btn.style.resize = "true";
     btn.style.fontSize = "14px";
     btn.style.fontFamily = "Arial";
 
@@ -269,12 +301,29 @@ function addButtonToResultPage() {
         document.getElementById("element-background-opacity").value = window.getComputedStyle(event.target).getPropertyValue('opacity') * 100;
     });
 
+    cssId = '#' + btn.id;
+    cssMap[cssId] = {
+        'position': "absolute",
+        'width': "20%",
+        'height': "15%",
+        'top': `${btn_num * 11}%`,
+        'left': "10%",
+        'resize': "true",
+        'fontSize': "14px",
+        'fontFamily': "Arial",
+        "border-color-input": document.getElementById("border-color-input").value,
+        "border-width-input": document.getElementById("border-width-input").value,
+        "border-radius-input": document.getElementById("border-radius-input").value,
+        "background-color": 'white',
+        "opacity": document.getElementById("element-background-opacity").value
+    }
+
     // document.querySelector(".resultpage").appendChild(btn);
     document.getElementById(currentWindow).appendChild(btn);
-    saveElementOriginalSizeAndPosition(btn);
     dragElement(document.getElementById('btn' + String(btn_num)));
     document.getElementById('btn' + String(btn_num)).style.zIndex = btn_num;
     btn_num += 1;
+
 
     updateDropdownOptions(btn.id);
     // scaleElements();
@@ -286,7 +335,6 @@ let isDraggingText = false;
 function addTextboxToResultPage() {
     const txtbox = document.createElement('div');
     txtbox.contentEditable = true;
-    txtbox.placeholder = "textbox " + txtbox_num; 
     txtbox.dataset.placeholder = "textbox " + txtbox_num;
     txtbox.style.position = "absolute";
     txtbox.style.width = "30%";
@@ -320,6 +368,25 @@ function addTextboxToResultPage() {
         isDraggingText = false;
         txtbox.focus();
     });
+    
+    cssId = '#' + txtbox.id;
+    cssMap[cssId] = {
+        'position': "absolute",
+        'width': "30%",
+        'height': "20%",
+        'top': `${txtbox_num * 11}%`,
+        'left': "30%",
+        'background-color': 'white',
+        'border': "1px solid #000",
+        'zIndex': txtbox_num,
+        'fontSize': "14px",
+        'fontFamily': "Arial",
+        "border-color-input": document.getElementById("border-color-input").value,
+        "border-width-input": document.getElementById("border-width-input").value,
+        "border-radius-input": document.getElementById("border-radius-input").value,
+        "opacity": document.getElementById("element-background-opacity").value,
+        'name-input': document.getElementById('name-input').value,
+    }
 
     txtbox.addEventListener('dblclick', function(event) {
         event.stopPropagation();
@@ -344,11 +411,11 @@ function addTextboxToResultPage() {
         }
         txtbox.setAttribute('readonly', true);
         isDraggingText = false;
+        cssMap[cssId]['text'] = txtbox.textContent;
     });
 
     // document.querySelector(".resultpage").appendChild(txtbox);
     document.getElementById(currentWindow).appendChild(txtbox);
-    saveElementOriginalSizeAndPosition(txtbox);
 
     dragElement(txtbox);
     txtbox_num += 1;
@@ -397,18 +464,18 @@ function dragElement(element) {
         }
         e = e || window.event;
         const rect = element.getBoundingClientRect();
-        const isResizing = e.clientX > rect.right - 10 && e.clientY > rect.bottom - 10;
+        isResizing = e.clientX > rect.right - 10 && e.clientY > rect.bottom - 10;
 
 
         if (isResizing) {
             document.onmousemove = elementResize;
-            document.onmouseup = closeDragElement;
+            document.onmouseup = closeResizeElement;
         } else {
             e.preventDefault();
             pos3 = e.clientX;
             pos4 = e.clientY;
-            document.onmouseup = closeDragElement;
             document.onmousemove = elementDrag;
+            document.onmouseup = closeDragElement;
         }
     }
 
@@ -438,6 +505,24 @@ function dragElement(element) {
         document.onmouseup = null;
         document.onmousemove = null;
         isResizing = false;
+
+        cssId = '#' + element.id;
+        if (cssMap[cssId]) {
+            cssMap[cssId]['top'] = window.getComputedStyle(element).getPropertyValue('top');
+            cssMap[cssId]['left'] = window.getComputedStyle(element).getPropertyValue('left');
+        }
+    }
+
+    function closeResizeElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+        isResizing = false;
+
+        cssId = '#' + element.id;
+        if (cssMap[cssId]) {
+            cssMap[cssId]['width'] = window.getComputedStyle(element).getPropertyValue('width');
+            cssMap[cssId]['height'] = window.getComputedStyle(element).getPropertyValue('height');
+        }
     }
 }
 
@@ -445,6 +530,10 @@ function removeElement() {
     if (btn_curclick && btn_curclick.id !== currentWindow) {
         btn_curclick.remove();
         btn_curclick = null; // 선택된 요소 초기화
+    }
+    cssId = '#' + btn_curclick.id;
+    if (cssMap[cssId]) {
+        delete cssMap[cssId];
     }
 }
 
@@ -527,30 +616,55 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('border-radius-input').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== currentWindow) {
             btn_curclick.style.borderRadius = this.value + 'px';
+            cssId = '#' + btn_curclick.id;
+            if (!cssMap[cssId]) {
+                cssMap[cssId] = {};
+            }
+            cssMap[cssId]['border-radius-input'] = this.value + 'px';
         }
     });
 
     document.getElementById('border-color-input').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== currentWindow) {
             btn_curclick.style.borderColor = this.value;
+            cssId = '#' + btn_curclick.id;
+            if (!cssMap[cssId]) {
+                cssMap[cssId] = {};
+            }
+            cssMap[cssId]['border-color-input'] = this.value;
         }
     });
 
     document.getElementById('border-width-input').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== currentWindow) {
             btn_curclick.style.borderWidth = this.value + 'px';
+            cssId = '#' + btn_curclick.id;
+            if (!cssMap[cssId]) {
+                cssMap[cssId] = {};
+            }
+            cssMap[cssId]['border-width-input'] = this.value + 'px';
         }
     });
 
     document.getElementById('background-color-input').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== currentWindow) {
             btn_curclick.style.backgroundColor = this.value;
+            cssId = '#' + btn_curclick.id;
+            if (!cssMap[cssId]) {
+                cssMap[cssId] = {};
+            }
+            cssMap[cssId]['background-color'] = this.value;
         }
     });
 
     document.getElementById('element-background-opacity').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== currentWindow) {
             btn_curclick.style.opacity = this.value / 100;
+            cssId = '#' + btn_curclick.id;
+            if (!cssMap[cssId]) {
+                cssMap[cssId] = {};
+            }
+            cssMap[cssId]['opacity'] = this.value / 100;
         }
     });
 
@@ -561,6 +675,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         let zIndex = parseInt(window.getComputedStyle(btn_curclick).getPropertyValue('z-index'));
         btn_curclick.style.zIndex = zIndex + 1;
+        
+        cssId = '#' + btn_curclick.id;
+        if (!cssMap[cssId]) {
+            cssMap[cssId] = {};
+        }
+        cssMap[cssId]['zIndex'] = zIndex + 1;
     });
 
     document.getElementById('z-index-down').addEventListener('click', function() {
@@ -570,6 +690,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         let zIndex = parseInt(window.getComputedStyle(btn_curclick).getPropertyValue('z-index'));
         btn_curclick.style.zIndex = Math.max(0, zIndex - 1);
+
+        cssId = '#' + btn_curclick.id;
+        if (!cssMap[cssId]) {
+            cssMap[cssId] = {};
+        }
+        cssMap[cssId]['zIndex'] = zIndex - 1;
     });
 
     // @text_formatter
@@ -601,6 +727,12 @@ document.addEventListener('DOMContentLoaded', () => {
             else {
                 btn_curclick.style.fontSize = this.value + "px";
             }
+
+            cssId = '#' + btn_curclick.id;
+            if (!cssMap[cssId]) {
+                cssMap[cssId] = {};
+            }
+            cssMap[cssId]['fontSize'] = this.value + "px";
         }
     });
 
@@ -626,6 +758,12 @@ document.addEventListener('DOMContentLoaded', () => {
             else {
                 btn_curclick.style.color = this.value;
             }
+
+            cssId = '#' + btn_curclick.id;
+            if (!cssMap[cssId]) {
+                cssMap[cssId] = {};
+            }
+            cssMap[cssId]['color'] = this.value;
         }
     });
 
@@ -651,6 +789,12 @@ document.addEventListener('DOMContentLoaded', () => {
             else {
                 btn_curclick.style.fontFamily = this.value;
             }
+
+            cssId = '#' + btn_curclick.id;
+            if (!cssMap[cssId]) {
+                cssMap[cssId] = {};
+            }
+            cssMap[cssId]['fontFamily'] = this.value;
         }
     });
 
@@ -676,6 +820,12 @@ document.addEventListener('DOMContentLoaded', () => {
             else {
                 btn_curclick.style.fontWeight = btn_curclick.style.fontWeight === 'bold' ? 'normal' : 'bold';
             }
+            
+            cssId = '#' + btn_curclick.id;
+            if (!cssMap[cssId]) {
+                cssMap[cssId] = {};
+            }
+            cssMap[cssId]['fontWeight'] = btn_curclick.style.fontWeight === 'bold' ? 'normal' : 'bold';
         }
     });
 
@@ -701,6 +851,12 @@ document.addEventListener('DOMContentLoaded', () => {
             else {
                 btn_curclick.style.fontStyle = btn_curclick.style.fontStyle === 'italic' ? 'normal' : 'italic';
             }
+
+            cssId = '#' + btn_curclick.id;
+            if (!cssMap[cssId]) {
+                cssMap[cssId] = {};
+            }
+            cssMap[cssId]['fontStyle'] = btn_curclick.style.fontStyle === 'italic' ? 'normal' : 'italic';
         }
     });
 
@@ -730,6 +886,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn_curclick.style.fontSize = btn_curclick.style.verticalAlign === 'super' ? 'smaller' : 'inherit';
             }
 
+            cssId = '#' + btn_curclick.id;
+            if (!cssMap[cssId]) {
+                cssMap[cssId] = {};
+            }
+            cssMap[cssId]['verticalAlign'] = btn_curclick.style.verticalAlign === 'super' ? 'baseline' : 'super';
+            cssMap[cssId]['fontSize'] = btn_curclick.style.verticalAlign === 'super' ? 'smaller' : 'inherit';
         }
     });
 
@@ -758,6 +920,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn_curclick.style.verticalAlign = btn_curclick.style.verticalAlign === 'sub' ? 'baseline' : 'sub';
                 btn_curclick.style.fontSize = btn_curclick.style.verticalAlign === 'sub' ? 'smaller' : 'inherit';
             }
+
+            cssId = '#' + btn_curclick.id;
+            if (!cssMap[cssId]) {
+                cssMap[cssId] = {};
+            }
+            cssMap[cssId]['verticalAlign'] = btn_curclick.style.verticalAlign === 'super' ? 'baseline' : 'sub';
+            cssMap[cssId]['fontSize'] = btn_curclick.style.verticalAlign === 'super' ? 'smaller' : 'inherit';
         }
     });
 
