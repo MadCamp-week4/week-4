@@ -131,6 +131,12 @@ body, html {
     max-width: 400px;
 }
 
+.custom-textbox[contenteditable]:empty:before {
+    content: attr(data-placeholder);
+    color: grey;
+    pointer-events: none;
+}
+
 .text-controls {
     display: flex;
     flex-wrap: wrap;

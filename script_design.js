@@ -200,12 +200,12 @@ function addButtonToResultPage() {
     btn.appendChild(btnText);
 
     btn.style.position = "absolute";
-    btn.style.width = "10%";
-    btn.style.height = "10%";
+    btn.style.width = "20%";
+    btn.style.height = "15%";
     btn.style.top = `${btn_num * 11}%`;
     btn.style.left = `10%`;
     btn.style.resize = "true"
-    btn.style.fontSize = "10px";
+    btn.style.fontSize = "14px";
     btn.style.fontFamily = "Arial";
 
     btn.id = 'btn' + String(btn_num);
@@ -239,22 +239,22 @@ let isDraggingText = false;
 function addTextboxToResultPage() {
     const txtbox = document.createElement('div');
     txtbox.contentEditable = true;
-    txtbox.placeholder = "textbox " + txtbox_num;  // 기본 placeholder 설정
+    txtbox.placeholder = "textbox " + txtbox_num; 
+    txtbox.dataset.placeholder = "textbox " + txtbox_num;
     txtbox.style.position = "absolute";
-    txtbox.style.width = "20%";
-    txtbox.style.height = "10%";
+    txtbox.style.width = "30%";
+    txtbox.style.height = "20%";
     txtbox.style.top = `${txtbox_num * 11}%`;
     txtbox.style.left = `30%`; 
     txtbox.style.backgroundColor = "white"; 
     txtbox.style.border = "1px solid #000";
     txtbox.style.zIndex = txtbox_num;
-    txtbox.style.fontSize = "10px";
+    txtbox.style.fontSize = "14px";
     txtbox.style.fontFamily = "Arial";
 
     txtbox.id = 'txtbox' + String(txtbox_num);
     txtbox.classList.add("resizable", "custom-textbox");
 
-    // 텍스트 박스 생성 시 클릭 이벤트 리스너 추가
     txtbox.addEventListener('click', function(event) {
         event.stopPropagation(); 
         btn_curclick = event.target;
@@ -269,7 +269,7 @@ function addTextboxToResultPage() {
         document.getElementById('font-size-input').value = getFontSize(window.getComputedStyle(event.target).getPropertyValue('font'));
         document.getElementById('fontname-select').value = getFont(window.getComputedStyle(event.target).getPropertyValue('font'));
 
-        txtbox.contentEditable = false;  // 텍스트 편집 모드 비활성화
+        txtbox.contentEditable = false; 
         isDraggingText = false;
         txtbox.focus();
     });
@@ -278,13 +278,24 @@ function addTextboxToResultPage() {
         event.stopPropagation();
         btn_curclick = event.target;
         
-        txtbox.contentEditable = true;  // 더블 클릭 시 편집 모드 활성화
-        txtbox.focus();
+        txtbox.contentEditable = true;
         isDraggingText = true;
+        txtbox.focus();
+
+        // for cursor to locate at the end of the text
+        const range = document.createRange();
+        const selection = window.getSelection();
+        range.selectNodeContents(txtbox);
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
     });
 
     txtbox.addEventListener('blur', function() {
-        txtbox.setAttribute('readonly', true);  // 텍스트 편집 모드 비활성화
+        if (txtbox.textContent.trim() === "") {
+            txtbox.innerHTML = "";
+        }
+        txtbox.setAttribute('readonly', true);
         isDraggingText = false;
     });
 
@@ -382,6 +393,13 @@ function dragElement(element) {
     }
 }
 
+function removeElement() {
+    if (btn_curclick && btn_curclick.id !== "resultpage") {
+        btn_curclick.remove();
+        btn_curclick = null; // 선택된 요소 초기화
+    }
+}
+
 
 ///////////////// addEventClickListenr after all contents are loaded ///////////////////////////////
 
@@ -445,6 +463,11 @@ document.addEventListener('DOMContentLoaded', () => {
         addTextboxToResultPage();
     });
 
+    const deleteElementButton = document.getElementById('deleteElement');
+    deleteElementButton.addEventListener('click', () => {
+        removeElement();
+    });
+
     // @element_formatter
     document.getElementById('border-radius-input').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== "resultpage") {
@@ -503,43 +526,183 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('font-size-input').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== "resultpage") {
-            btn_curclick.style.fontSize = this.value + "px";
+            const selection = window.getSelection(); 
+            if (selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                if (range && !range.collapsed) {
+                    const parentElement = range.commonAncestorContainer.parentElement;
+                    if (parentElement.tagName === 'SPAN') {
+                        parentElement.style.fontSize = this.value + "px";
+                    } else {
+                        const span = document.createElement('span');
+                        span.style.fontSize = this.value + "px";
+                        span.appendChild(range.extractContents());
+                        range.insertNode(span);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
+                }
+            }
+            else {
+                btn_curclick.style.fontSize = this.value + "px";
+            }
         }
     });
 
     document.getElementById('font-color-input').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== "resultpage") {
-            btn_curclick.style.color = this.value;
+            const selection = window.getSelection(); 
+            if (selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                if (range && !range.collapsed) {
+                    const parentElement = range.commonAncestorContainer.parentElement;
+                    if (parentElement.tagName === 'SPAN') {
+                        parentElement.style.color = this.value;
+                    } else {
+                        const span = document.createElement('span');
+                        span.style.color = this.value;
+                        span.appendChild(range.extractContents());
+                        range.insertNode(span);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
+                }
+            }
+            else {
+                btn_curclick.style.color = this.value;
+            }
         }
     });
 
     document.getElementById('fontname-select').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== "resultpage") {
-            btn_curclick.style.fontFamily = this.value;
+            const selection = window.getSelection(); 
+            if (selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                if (range && !range.collapsed) {
+                    const parentElement = range.commonAncestorContainer.parentElement;
+                    if (parentElement.tagName === 'SPAN') {
+                        parentElement.style.fontFamily = this.value;
+                    } else {
+                        const span = document.createElement('span');
+                        span.style.fontFamily = this.value;
+                        span.appendChild(range.extractContents());
+                        range.insertNode(span);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
+                }
+            }
+            else {
+                btn_curclick.style.fontFamily = this.value;
+            }
         }
     });
 
     document.getElementById('boldButton').addEventListener('click', function() {
         if (btn_curclick && btn_curclick.id !== "resultpage") {
-            btn_curclick.style.fontWeight = btn_curclick.style.fontWeight === 'bold' ? 'normal' : 'bold';
+            const selection = window.getSelection(); 
+            if (selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                if (range && !range.collapsed) {
+                    const parentElement = range.commonAncestorContainer.parentElement;
+                    if (parentElement.tagName === 'SPAN') {
+                        parentElement.style.fontWeight = span.style.fontWeight === 'bold' ? 'normal' : 'bold';
+                    } else {
+                        const span = document.createElement('span');
+                        span.style.fontWeight = span.style.fontWeight === 'bold' ? 'normal' : 'bold';
+                        span.appendChild(range.extractContents());
+                        range.insertNode(span);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
+                }
+            }
+            else {
+                btn_curclick.style.fontWeight = btn_curclick.style.fontWeight === 'bold' ? 'normal' : 'bold';
+            }
         }
     });
 
     document.getElementById('italicButton').addEventListener('click', function() {
         if (btn_curclick && btn_curclick.id !== "resultpage") {
-            btn_curclick.style.fontStyle = btn_curclick.style.fontStyle === 'italic' ? 'normal' : 'italic';
+            const selection = window.getSelection(); 
+            if (selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                if (range && !range.collapsed) {
+                    const parentElement = range.commonAncestorContainer.parentElement;
+                    if (parentElement.tagName === 'SPAN') {
+                        parentElement.style.fontStyle = parentElement.style.fontStyle === 'italic' ? 'normal' : 'italic';
+                    } else {
+                        const span = document.createElement('span');
+                        span.style.fontStyle = span.style.fontStyle === 'italic' ? 'normal' : 'italic';
+                        span.appendChild(range.extractContents());
+                        range.insertNode(span);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
+                }
+            }
+            else {
+                btn_curclick.style.fontStyle = btn_curclick.style.fontStyle === 'italic' ? 'normal' : 'italic';
+            }
         }
     });
 
     document.getElementById('superscriptButton').addEventListener('click', function() {
         if (btn_curclick && btn_curclick.id !== "resultpage") {
-            document.execCommand('superscript');
+            const selection = window.getSelection(); 
+            if (selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                if (range && !range.collapsed) {
+                    const parentElement = range.commonAncestorContainer.parentElement;
+                    if (parentElement.tagName === 'SPAN') {
+                        parentElement.style.verticalAlign = parentElement.style.verticalAlign === 'super' ? 'baseline' : 'super';
+                        parentElement.style.fontSize = parentElement.style.verticalAlign === 'super' ? 'smaller' : 'inherit';
+                    } else {
+                        const span = document.createElement('span');
+                        span.style.verticalAlign = span.style.verticalAlign === 'super' ? 'baseline' : 'super';
+                        span.style.fontSize = span.style.verticalAlign === 'super' ? 'smaller' : 'inherit';
+                        span.appendChild(range.extractContents());
+                        range.insertNode(span);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
+                }
+            }
+            else {
+                btn_curclick.style.verticalAlign = btn_curclick.style.verticalAlign === 'super' ? 'baseline' : 'super';
+                btn_curclick.style.fontSize = btn_curclick.style.verticalAlign === 'super' ? 'smaller' : 'inherit';
+            }
+
         }
     });
 
     document.getElementById('subscriptButton').addEventListener('click', function() {
         if (btn_curclick && btn_curclick.id !== "resultpage") {
-            document.execCommand('subscript');
+            const selection = window.getSelection(); 
+            if (selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                if (range && !range.collapsed) {
+                    const parentElement = range.commonAncestorContainer.parentElement;
+                    if (parentElement.tagName === 'SPAN') {
+                        parentElement.style.verticalAlign = parentElement.style.verticalAlign === 'sub' ? 'baseline' : 'sub';
+                        parentElement.style.fontSize = parentElement.style.verticalAlign === 'sub' ? 'smaller' : 'inherit';
+                    } else {
+                        const span = document.createElement('span');
+                        span.style.verticalAlign = span.style.verticalAlign === 'sub' ? 'baseline' : 'sub';
+                        span.style.fontSize = span.style.verticalAlign === 'sub' ? 'smaller' : 'inherit';
+                        span.appendChild(range.extractContents());
+                        range.insertNode(span);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
+                }
+            }
+            else {
+                btn_curclick.style.verticalAlign = btn_curclick.style.verticalAlign === 'sub' ? 'baseline' : 'sub';
+                btn_curclick.style.fontSize = btn_curclick.style.verticalAlign === 'sub' ? 'smaller' : 'inherit';
+            }
         }
     });
 
