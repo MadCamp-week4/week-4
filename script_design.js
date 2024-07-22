@@ -17,7 +17,6 @@ function loadHTML(url, elementId) {
             return response.text();
         })
         .then(data => {
-            console.log('Loaded HTML:', data); // Debugging line
             document.getElementById(elementId).innerHTML = data;
             adjustResultPageSize();
         })
@@ -27,6 +26,32 @@ function loadHTML(url, elementId) {
 }
 
 
+function scaleElements() {
+    const resultPage = document.getElementById('resultpage');
+    const elements = resultPage.querySelectorAll('.resizable');
+    const scaleX = resultPage.clientWidth / resultPage.offsetWidth;
+    const scaleY = resultPage.clientHeight / resultPage.offsetHeight;
+
+    elements.forEach(element => {
+        const originalWidth = parseFloat(element.dataset.originalWidth);
+        const originalHeight = parseFloat(element.dataset.originalHeight);
+        const originalTop = parseFloat(element.dataset.originalTop);
+        const originalLeft = parseFloat(element.dataset.originalLeft);
+
+        element.style.width = `${originalWidth * scaleX}px`;
+        element.style.height = `${originalHeight * scaleY}px`;
+        element.style.top = `${originalTop * scaleY}px`;
+        element.style.left = `${originalLeft * scaleX}px`;
+    });
+}
+
+function saveElementOriginalSizeAndPosition(element) {
+    const rect = element.getBoundingClientRect();
+    element.dataset.originalWidth = rect.width;
+    element.dataset.originalHeight = rect.height;
+    element.dataset.originalTop = rect.top;
+    element.dataset.originalLeft = rect.left;
+}
 
 ///////////////// adjust result page ratio ////////////////////////////////////////////////////////////////////////
 
@@ -39,18 +64,21 @@ function getAspectRatio(aspectRatio) {
 function adjustResultPageSize() {
     const topRight = document.querySelector('.resizable.top-right');
     const resultPage = document.getElementById('resultpage');
+    const resultRect = resultPage.getBoundingClientRect();
 
     if (topRight && resultPage) {
         const topRightRect = topRight.getBoundingClientRect();
         const aspectRatio = getAspectRatio(currentAspectRatio);
-        let newWidth, newHeight;
+        let newWidth, newHeight, newRatio;
 
         if (topRightRect.width / topRightRect.height > aspectRatio) {
             newHeight = topRightRect.height;
             newWidth = newHeight * aspectRatio;
+            newRatio = newHeight /  resultRect.width;
         } else {
             newWidth = topRightRect.width;
             newHeight = newWidth / aspectRatio;
+            newRatio = newWidth / resultRect.width;
         }
 
         resultPage.style.width = `${newWidth}px`;
@@ -172,11 +200,13 @@ function addButtonToResultPage() {
     btn.appendChild(btnText);
 
     btn.style.position = "absolute";
-    btn.style.width = "100px";
-    btn.style.height = "30px";
-    btn.style.top = `${btn_num * 40}px`;
-    btn.style.left = "10px";
+    btn.style.width = "10%";
+    btn.style.height = "10%";
+    btn.style.top = `${btn_num * 11}%`;
+    btn.style.left = `10%`;
     btn.style.resize = "true"
+    btn.style.fontSize = "10px";
+    btn.style.fontFamily = "Arial";
 
     btn.id = 'btn' + String(btn_num);
     btn.classList.add("resizable", "custom-button");
@@ -194,11 +224,13 @@ function addButtonToResultPage() {
     });
 
     document.querySelector(".resultpage").appendChild(btn);
+    saveElementOriginalSizeAndPosition(btn);
     dragElement(document.getElementById('btn' + String(btn_num)));
     document.getElementById('btn' + String(btn_num)).style.zIndex = btn_num;
     btn_num += 1;
 
     updateDropdownOptions(btn.id);
+    // scaleElements();
 }
 
 
@@ -209,13 +241,15 @@ function addTextboxToResultPage() {
     txtbox.contentEditable = true;
     txtbox.placeholder = "textbox " + txtbox_num;  // 기본 placeholder 설정
     txtbox.style.position = "absolute";
-    txtbox.style.width = "200px";
-    txtbox.style.height = "100px";
-    txtbox.style.top = `${txtbox_num * 40}px`;
-    txtbox.style.left = "120px";  // 버튼과 겹치지 않게 위치 설정
+    txtbox.style.width = "20%";
+    txtbox.style.height = "10%";
+    txtbox.style.top = `${txtbox_num * 11}%`;
+    txtbox.style.left = `30%`; 
     txtbox.style.backgroundColor = "white"; 
     txtbox.style.border = "1px solid #000";
     txtbox.style.zIndex = txtbox_num;
+    txtbox.style.fontSize = "10px";
+    txtbox.style.fontFamily = "Arial";
 
     txtbox.id = 'txtbox' + String(txtbox_num);
     txtbox.classList.add("resizable", "custom-textbox");
@@ -255,9 +289,11 @@ function addTextboxToResultPage() {
     });
 
     document.querySelector(".resultpage").appendChild(txtbox);
+    saveElementOriginalSizeAndPosition(txtbox);
 
     dragElement(txtbox);
     txtbox_num += 1;
+    // scaleElements();
 }
 
 
@@ -273,18 +309,14 @@ function extractFirstPxValue(value) {
 }
 
 function getFontSize(fontString) {
-    console.log("fontString: ", fontString);
-    const match = fontString.match(/^(\d+)px\s+["]?([\s\S]+?)["]?$/);
+    const match = fontString.match(/(\d+)px\s+["]?([^"]+)["]?$/);
     const fontSize = match[1];
-    console.log("fontSize: ", fontSize);
     return fontSize;
 }
 
 function getFont(fontString) {
-    console.log("fontString: ", fontString);
-    const match = fontString.match(/^(\d+)px\s+["]?([\s\S]+?)["]?$/);
+    const match = fontString.match(/(\d+)px\s+["]?([^"]+)["]?$/);
     const fontName = match[2];
-    console.log("fontName: ", fontName);
     return fontName;
 }
 
@@ -415,8 +447,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // @element_formatter
     document.getElementById('border-radius-input').addEventListener('change', function() {
-        console.log(btn_curclick.id)
-
         if (btn_curclick && btn_curclick.id !== "resultpage") {
             btn_curclick.style.borderRadius = this.value + 'px';
         }
@@ -465,13 +495,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // @text_formatter
-    // document.getElementById('name-input').addEventListener('change', function() {
-    //     if (btn_curclick && btn_curclick.id !== "resultpage") {
-    //         btn_curclick.id = this.value;
-    //         toastr.success("Element name set " + this.value);
-    //     }
-    // });
-
     document.getElementById('text-input').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== "resultpage" && btn_curclick.tagName !== "DIV") {
             btn_curclick.innerHTML = this.value;

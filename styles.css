@@ -111,24 +111,24 @@ body, html {
 }
 
 .custom-button {
-    position: relative;
+    /* position: relative; */
     display: inline-block;
     resize: both;
-    min-height: 50px;
-    min-width: 50px;
+    /* min-height: 50px;
+    min-width: 50px; */
     max-height: 300px;
     max-width: 400px;
 }
 
 .custom-textbox {
+    /* position: relative; */
     border: 1px solid #000;
     background-color: white;
     resize: both;
-    min-height: 50px;
-    min-width: 50px;
+    /* min-height: 50px;
+    min-width: 50px; */
     max-height: 300px;
     max-width: 400px;
-    position: relative;
 }
 
 .text-controls {
