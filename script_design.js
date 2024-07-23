@@ -40,6 +40,7 @@ let cssMap = {
     }
 };
 
+// @load_preview_html
 function loadHTML(url, elementId) {
 
     fetch(url)
@@ -67,6 +68,7 @@ function getAspectRatio(aspectRatio) {
 }
 
 
+// @adjust_resultpage_size
 function adjustResultPageSize() {
     const topRight = document.querySelector('.resizable.top-right');
     const resultPage = document.getElementById(currentWindow);
@@ -100,6 +102,7 @@ function adjustResultPageSize() {
 
 ///////////////// save style attributes as .css file ////////////////////////////////////////////////////////////////////////
 
+// @parse_css_to_json
 function parseCssMapToJson(cssMap) {
     return new Promise((resolve) => {
         let cssString = '';
@@ -134,6 +137,7 @@ function parseCssMapToJson(cssMap) {
     });
 }
 
+// @create_download_src_zip
 function createAndDownloadZip() {
     const zip = new JSZip();
     const folder = zip.folder("user");
@@ -190,7 +194,7 @@ function createAndDownloadZip() {
 
 
 
-///////////////// window controls ////////////////////////////////////////////////////////////////////////
+///////////////// @window_controls ////////////////////////////////////////////////////////////////////////
 
 function addWindow() {
     windowCount++;
@@ -258,6 +262,7 @@ function updateWindowButtons() {
 
 ///////////////// design attributes ////////////////////////////////////////////////////////////////////////
 
+// @change_bg_color
 function changeBackgroundColor(color) {
     currentColor = color;
     const resultPage = document.getElementById(currentWindow);
@@ -272,7 +277,7 @@ function changeBackgroundColor(color) {
 }
 
 
-/* buttons **************************/
+// @add_btn
 function addButtonToResultPage() {
     const btn = document.createElement('button');
     const btnText = document.createTextNode('Button ' + btn_num);
@@ -331,7 +336,7 @@ function addButtonToResultPage() {
 }
 
 
-/* text boxes **************************/
+// @add_textbox
 let isDraggingText = false;
 function addTextboxToResultPage() {
     const txtbox = document.createElement('div');
@@ -424,7 +429,7 @@ function addTextboxToResultPage() {
 }
 
 
-/* facilities **************************/
+// @utilities
 function rgbToHex(rgb) {
     const rgbArray = rgb.match(/\d+/g).map(Number);
     return `#${((1 << 24) + (rgbArray[0] << 16) + (rgbArray[1] << 8) + rgbArray[2]).toString(16).slice(1).toUpperCase()}`;
@@ -447,6 +452,7 @@ function getFont(fontString) {
     return fontName;
 }
 
+// @utilities_drag_element
 function dragElement(element) {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     const resultPage = document.getElementById(currentWindow);
@@ -527,6 +533,7 @@ function dragElement(element) {
     }
 }
 
+// @utilities_remove_element
 function removeElement() {
     if (btn_curclick && btn_curclick.id !== currentWindow) {
         btn_curclick.remove();
