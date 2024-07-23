@@ -13,7 +13,7 @@ let currentWindow = 'window1';
 let cssMap = {
     '#window1': {},
     '.resultpage': {
-        'position': 'relative',
+        'position': 'absolute',
         'overflow': 'auto',
         'background-color': 'cornflowerblue',
         'border': '1px solid #ccc'
@@ -105,7 +105,7 @@ function adjustResultPageSize() {
 // @parse_css_to_json
 function parseCssMapToJson(cssMap) {
     return new Promise((resolve) => {
-        let cssString = '';
+        let cssString = 'html, body {\n    margin: 0;\n    padding: 0;\n    width: 100%;\n    height: 100%;\n    overflow: hidden;\n}\n\n';
 
         for (const [selector, styles] of Object.entries(cssMap)) {
             cssString += `${selector} {\n`;
@@ -117,6 +117,12 @@ function parseCssMapToJson(cssMap) {
             }
 
             for (const [property, value] of Object.entries(styles)) {
+                if (selector.match(/^#window\d+$/)) {
+                    if (property === 'width' || property === 'height') {
+                        cssString += `    ${property}: 100%;\n`;
+                        continue;
+                    }
+                }
                 if (property === 'backgroundColor') {
                     cssString += `    background-color: ${value};\n`;
                 } else if (property === 'fontSize') {
@@ -137,6 +143,18 @@ function parseCssMapToJson(cssMap) {
     });
 }
 
+function getCleanedResultPageHTML() {
+    const resultPageContainer = document.getElementById('resultpage-container');
+    const resultPages = resultPageContainer.querySelectorAll('.resultpage');
+
+    resultPages.forEach(resultPage => {
+        resultPage.style.width = '';
+        resultPage.style.height = '';
+    });
+
+    return resultPageContainer.innerHTML;
+}
+
 // @create_download_src_zip
 function createAndDownloadZip() {
     const zip = new JSZip();
@@ -148,7 +166,7 @@ function createAndDownloadZip() {
             folder.file("styles.css", cssContent);
 
             // Fetch and add main.html from the DOM
-            const resultPageHTML = document.querySelector('#resultpage-container').innerHTML;
+            const resultPageHTML = getCleanedResultPageHTML();
             const mainHtmlContent = `
                 <!DOCTYPE html>
                 <html lang="en">
