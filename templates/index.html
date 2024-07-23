@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resizable Panels</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <script src="https://unpkg.com/blockly"></script>
+    <script src="../static/node_modules/blockly/blockly_compressed.js"></script>
+    <script src="../static/node_modules/blockly/blocks_compressed.js"></script>
+    <script src="../static/node_modules/blockly/javascript_compressed.js"></script>
+    <script src="../static/node_modules/blockly/msg/en.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="../static/script_function.js"></script>
+    <script src="../static/script_design.js"></script>
+    <script src="../static/script.js"></script>
+
+</head>
+
+<body>
+    
+    <div class="background"></div>
+    <div class="container">
+        <!-- 버튼 추가 -->
+        <div class="container" id="blocklyDiv" style="width: 100%; height: 100%; position: relative;">
+        </div>
+        <div class="designer">
+            <div class="resize-handle-horizontal"></div>
+            <div class="resizable top-right">
+                <select id="aspectRatioSelector">
+                    <option value="16:9" selected>16:9</option>
+                    <option value="4:3">4:3</option>
+                    <option value="1:1">1:1</option>
+                </select>
+                <div id="resultpage-container"></div>
+            </div>
+            <div class="resize-handle-vertical"></div>
+            <div class="resizable bottom-right">
+                <button id="addWindow">Add Window</button>
+                <button id="deleteWindow">Delete Window</button>
+                <div id="window-buttons" style="overflow-x: auto; white-space: nowrap; margin-top: 10px;"></div>
+                
+                <button id="colorPickerButton">Change Background Color</button>
+                <div id="colorPickerContainer" style="display: none;">
+                    <input type="color" id="colorPicker">
+                    <input type="text" id="hexColorInput" placeholder="#000000">
+                    <button id="applyColorButton">Apply</button>
+                    <button id="closeColorPickerButton">Close</button>
+                </div>
+                <button id="addButton">Add Button</button>
+                <button id="addTextBox">Add Text Box</button>
+                <button id="deleteElement">Delete Element</button>
+                <button id="downloadButton">Download Files</button>
+                <button id="generateCodeButton" style="position: absolute; top: 10px; left: 10px;">Generate Code</button>
+                <a id="downloadLink" style="display: none;">Download</a>
+
+                <div class="element-format">
+                    <span>Element Format: </span>
+                    <input type="color" id="border-color-input" title="Border Color">
+                    <input type="number" id="border-width-input" placeholder="Border Width" title="Border Width">
+                    <input type="number" id="border-radius-input" placeholder="Border Radius" title="Border Radius">
+                    <input type="color" id="background-color-input" title="Background Color">
+                    <input type="range" id="element-background-opacity" min="0" max="100" title="Opacity">
+                    <button id="z-index-up" title="Z-Index Up">Up</button>
+                    <button id="z-index-down" title="Z-Index Down">Down</button>
+                </div>
+                
+                <div class="text-controls">
+                    <label for="name-input">Element ID:</label>
+                    <input type="text" id="name-input" placeholder="Element ID">
+                    
+                    <label for="text-input">Text:</label>
+                    <input type="text" id="text-input" placeholder="Text">
+
+                    <label for="font-size-input">Font Size:</label>
+                    <input type="number" id="font-size-input" placeholder="Font Size">
+
+                    <label for="font-color-input">Font Color:</label>
+                    <input type="color" id="font-color-input">
+
+                    <label for="fontname-select">Font Family:</label>
+                    <select id="fontname-select">
+                        <option value="Arial">Arial</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="monospace">Monospace</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Verdana">Verdana</option>
+                    </select>
+
+                    <button id="boldButton">B</button>
+                    <button id="italicButton">I</button>
+                    <button id="underlineButton">U</button>
+                    <button id="superscriptButton" onclick="setSuperscript();">X²</button>
+                    <button id="subscriptButton" onclick="setSubscript();">X₂</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
