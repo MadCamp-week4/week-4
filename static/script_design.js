@@ -183,7 +183,7 @@ function createAndDownloadZip() {
                 </html>
             `;
             folder.file("main.html", mainHtmlContent);
-            folder.file("script.js",JS_code);
+            folder.file("script.js",JS_code_sucess);
             /*// Fetch and add script.js
             return fetch('user/script.js');
         })

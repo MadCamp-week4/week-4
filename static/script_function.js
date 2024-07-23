@@ -4,6 +4,27 @@ const API_KEY = "76e081612384877ee93d93d579dc2992";
 const COMPILER_ID = "55"; // https://sphere-engine.com/supported-languages
 
 var HTML_values = ["innerText","backgroundColor"];
+// 키 리스트
+const keyOptions = [
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', // 알파벳 소문자
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', // 알파벳 대문자
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', // 숫자
+    'Enter', 'Tab', 'Backspace', 'Delete', 'Escape', 'Shift', 'Control', 'Alt', 'Meta', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', // 제어 키
+    ' ', '!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~' // 특수 문자
+];
+
+// 코드 리스트
+const codeOptions = [
+    'KeyA', 'KeyB', 'KeyC', 'KeyD', 'KeyE', 'KeyF', 'KeyG', 'KeyH', 'KeyI', 'KeyJ', 'KeyK', 'KeyL', 'KeyM', 'KeyN', 'KeyO', 'KeyP', 'KeyQ', 'KeyR', 'KeyS', 'KeyT', 'KeyU', 'KeyV', 'KeyW', 'KeyX', 'KeyY', 'KeyZ', // 알파벳
+    'Digit0', 'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8', 'Digit9', // 숫자
+    'Enter', 'Tab', 'Backspace', 'Delete', 'Escape', 'ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight', 'AltLeft', 'AltRight', 'MetaLeft', 'MetaRight', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', // 제어 키
+    'Space', 'Minus', 'Equal', 'BracketLeft', 'BracketRight', 'Backslash', 'Semicolon', 'Quote', 'Backquote', 'Comma', 'Period', 'Slash', // 특수 문자
+    'CapsLock', 'ContextMenu', 'NumLock', 'ScrollLock', 'Pause', 'Insert', 'Home', 'PageUp', 'PageDown', 'End', // 잠금 및 내비게이션 키
+    'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', // 기능 키
+    'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', // 숫자 패드 키
+    'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'NumpadDecimal', 'NumpadEnter', 'NumpadEqual' // 숫자 패드 연산 키
+];
+
 var JS_code = "";
 var JS_code_sucess = "";
 
@@ -147,32 +168,45 @@ document.addEventListener('DOMContentLoaded', () => {
             return [code, Blockly.JavaScript.ORDER_NONE];
         };
 
-         // html component가 클릭되었을 때, @html_component_onclick
-         Blockly.Blocks['html_component_onclick'] = {
-            init: function() {
-              this.appendValueInput("NAME")
-                  .setCheck("HTML_COMPONENT")
-                  .appendField("Onclick");
-              this.appendStatementInput("STATEMENT")
-              .setCheck(null);
-              this.setColour(160);
-              this.setTooltip("Onclick of HTML Component");
-              this.setHelpUrl("");
-              this.setOutput(false, null);
-            }
-          };
 
-        Blockly.JavaScript.forBlock['html_component_onclick'] = function(block,generator) {
-            var htmlComponent = Blockly.JavaScript.valueToCode(block, 'NAME', javascript.Order.ATOMIC);
-            var statements_statement = Blockly.JavaScript.statementToCode(block, 'STATEMENT');
-
-            console.log(statements_statement);
-
-            var code = `document.getElementById${htmlComponent}.addEventListener('click', () => {
-                ${statements_statement}
-            });`;
-            return code;
-        };
+        //blockly 블럭 정의 @define_event_blocks
+        const events = [
+            { name: 'click', tooltip: 'On click of HTML Component' },
+            { name: 'dblclick', tooltip: 'On double click of HTML Component' },
+            { name: 'mouseover', tooltip: 'On mouse over of HTML Component' },
+            { name: 'mouseout', tooltip: 'On mouse out of HTML Component' },
+            { name : 'focus', tooltip : 'When HTML Component got focus'}
+        ];
+        
+        events.forEach(event => {
+            // 블럭 정의
+            Blockly.Blocks[`html_component_${event.name}`] = {
+                init: function() {
+                    this.appendValueInput("NAME")
+                        .setCheck("HTML_COMPONENT")
+                        .appendField(`On ${event.name}`);
+                    this.appendStatementInput("STATEMENT")
+                        .setCheck(null);
+                    this.setColour(160);
+                    this.setTooltip(event.tooltip);  // tooltip 설정
+                    this.setHelpUrl("");
+                    this.setOutput(false, null);
+                }
+            };
+        
+            // JavaScript 코드 생성기 정의
+            Blockly.JavaScript.forBlock[`html_component_${event.name}`] = function(block,generator) {
+                var htmlComponent = Blockly.JavaScript.valueToCode(block, 'NAME', Blockly.JavaScript.ORDER_ATOMIC);
+                var statements_statement = Blockly.JavaScript.statementToCode(block, 'STATEMENT');
+                
+                console.log(statements_statement);
+        
+                var code = `document.getElementById(${htmlComponent}).addEventListener('${event.name}', () => {
+                    ${statements_statement}
+                });`;
+                return code;
+            };
+        });
 
        //html component의 내부 값들을 set할 수 있음 @set_html_component_value
 
@@ -210,6 +244,53 @@ document.addEventListener('DOMContentLoaded', () => {
             return code;
           };
 
+          //////////////////KEYBOARD EVENTS////////////////////
+          Blockly.Blocks['keyboard_keydown'] = {
+            init: function() {
+              this.appendDummyInput()
+                  .appendField("Keyboard Keydown for")
+                  .appendField(new Blockly.FieldDropdown([
+                    ['key', 'KEY'], 
+                    ['code', 'CODE']
+                  ], function(option) {
+                    // Dropdown 변경시 두 번째 dropdown 갱신
+                    const keyBlock = this.getSourceBlock();
+                    const keyDropdown = keyBlock.getField('KEY_TYPE');
+                    if (option === 'KEY') {
+                      keyDropdown.menuGenerator_ = keyOptions.map(k => [k, k]);
+                    } else {
+                      keyDropdown.menuGenerator_ = codeOptions.map(c => [c, c]);
+                    }
+                    keyDropdown.setValue(keyDropdown.menuGenerator_[0][1]);
+                  }), 'TYPE')
+                  .appendField(new Blockly.FieldDropdown(keyOptions.map(k => [k, k])), "KEY_TYPE");
+              this.appendStatementInput("NAME")
+                  .setCheck(null);
+              this.setColour(50);
+              this.setTooltip("");
+              this.setHelpUrl("");
+            }
+          };
+          
+          // JavaScript 생성기 정의
+          Blockly.JavaScript.forBlock['keyboard_keydown'] = function(block,generator) {
+            const type = block.getFieldValue('TYPE');
+            const keyType = block.getFieldValue('KEY_TYPE');
+            const statements_name = Blockly.JavaScript.statementToCode(block, 'NAME');
+            
+            const eventKey = type === 'KEY' ? 'event.key' : 'event.code';
+            
+            const code = `
+            document.addEventListener('keydown', (event) => {
+              if (${eventKey} === '${keyType}') {
+                ${statements_name}
+              }
+            });
+            `;
+            
+            return code;
+          };
+
         //workspace 저장
         workspace = Blockly.inject(blocklyDiv, {
             toolbox: toolboxDom.documentElement,
@@ -220,8 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         Blockly.svgResize(workspace);
 
-        // 버튼 클릭 이벤트 리스너
-        
         var resultmessage=  "";
         generateCodeButton.addEventListener('click', async () => {
             const code = Blockly.JavaScript.workspaceToCode(workspace);
@@ -238,6 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(result_code == 15) // accept, 에러 없음
                 {
                     resultmessage = "Your code is perfect!";
+                    JS_code_sucess = JS_code;
                 }
                 else if(result_code == 11) // compilation error
                 {

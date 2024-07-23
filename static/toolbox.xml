@@ -345,6 +345,14 @@
       </category>
 
       <category name = "Event Listener" colour = "100">
-      <block type = "html_component_onclick"></block>
+      <block type = "html_component_click"></block>
+      <block type = "html_component_dblclick"></block>
+      <block type = "html_component_mouseover"></block>
+      <block type = "html_component_mouseout"></block>
+      <block type = "html_component_focus"></block>
+      </category>
+
+      <category name = "Keyboard Event" colour = "50">
+      <block type = "keyboard_keydown"></block>
       </category>
   </xml>

@@ -32,6 +32,9 @@ let document = {{
                         if (event === 'click') {{
                             this.click = callback;
                         }}
+                        if (event === 'dbclick') {{
+                            this.dbclick = callback;
+                        }}
                     }},
                     click: null
                 }};
