@@ -104,9 +104,9 @@ function adjustResultPageSize() {
 
 // @parse_css_to_json
 function parseCssMapToJson(cssMap) {
+    resultPage = document.getElementById(currentWindow).getBoundingClientRect();
     return new Promise((resolve) => {
         let cssString = 'html, body {\n    margin: 0;\n    padding: 0;\n    width: 100%;\n    height: 100%;\n    overflow: hidden;\n}\n\n';
-
         for (const [selector, styles] of Object.entries(cssMap)) {
             cssString += `${selector} {\n`;
 
@@ -301,12 +301,11 @@ function addButtonToResultPage() {
     const btnText = document.createTextNode('Button ' + btn_num);
     btn.appendChild(btnText);
 
-    btn.style.position = "absolute";
-    btn.style.width = "20%";
-    btn.style.height = "15%";
+    // btn.style.position = "absolute";
+    // btn.style.width = "20%";
+    // btn.style.height = "15%";
     btn.style.top = `${btn_num * 11}%`;
     btn.style.left = "10%";
-    btn.style.resize = "true";
     btn.style.fontSize = "14px";
     btn.style.fontFamily = "Arial";
 
@@ -476,6 +475,8 @@ function dragElement(element) {
     const resultPage = document.getElementById(currentWindow);
     let isResizing = false;
 
+    const height = extractFirstPxValue(window.getComputedStyle(resultPage).getPropertyValue('height'));
+    const width = extractFirstPxValue(window.getComputedStyle(resultPage).getPropertyValue('width'));
 
     if (element) {
         element.onmousedown = dragMouseDown;
@@ -511,24 +512,24 @@ function dragElement(element) {
         pos2 = pos4 - e.clientY;
         pos3 = e.clientX;
         pos4 = e.clientY;
+        const elementHeight = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('height'));
+        const elementWidth = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('width'));
+        const elementTop = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('top'));
+        const elementLeft = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('left'));
 
-        const newTop = Math.max(0, Math.min(resultPage.offsetHeight - element.offsetHeight, element.offsetTop - pos2));
-        const newLeft = Math.max(0, Math.min(resultPage.offsetWidth - element.offsetWidth, element.offsetLeft - pos1));
+        const newTop = Math.max(0, Math.min(height - elementHeight, elementTop - pos2));
+        const newLeft = Math.max(0, Math.min(width - elementWidth, elementLeft - pos1));
+        console.log(newTop, newLeft);
 
-        topPercent = newTop * 100 / resultPage.offsetHeight;
-        leftPercent = newLeft * 100 / resultPage.offsetWidth;
-
-        element.style.top = topPercent + '%';
-        element.style.left = leftPercent + '%';
+        element.style.top = newTop + 'px';
+        element.style.left = newLeft + 'px';
     }
 
     function elementResize(e) {
         e.preventDefault();
         const rect = element.getBoundingClientRect();
-        const resultRect = resultPage.getBoundingClientRect();
-
-        widthPercent = (e.clientX - rect.left) * 100 / resultRect.width;
-        heightPercent = (e.clientY - rect.top) * 100 / resultRect.height;
+        widthPercent = (e.clientX - rect.left) * 100 / width;
+        heightPercent = (e.clientY - rect.top) * 100 / height;
         element.style.width = widthPercent + '%';
         element.style.height = heightPercent + '%';
     }
@@ -537,6 +538,17 @@ function dragElement(element) {
         document.onmouseup = null;
         document.onmousemove = null;
         isResizing = false;
+
+        const elementTop = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('top'));
+        const elementLeft = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('left'));
+
+        topPercent = elementTop * 100 / height;
+        topPercent = topPercent + '%';
+        leftPercent = elementLeft * 100 / width;
+        leftPercent = leftPercent + '%';
+        
+        element.style.top = topPercent;
+        element.style.left = leftPercent;
 
         cssId = '#' + element.id;
         if (cssMap[cssId]) {
@@ -625,9 +637,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const downloadButton = document.getElementById('downloadButton');
     downloadButton.addEventListener('click', () => {
-        if (confirm("정말 파일을 생성 하시겠습니까?")) {
-            createAndDownloadZip();
-        }
+        createAndDownloadZip();
+        // if (confirm("정말 파일을 생성 하시겠습니까?")) {
+        //     createAndDownloadZip();
+        // }
     });
 
     const addButton = document.getElementById('addButton');

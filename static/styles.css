@@ -122,14 +122,28 @@ body, html {
 }
 
 .custom-button {
-    /* position: relative; */
+    position: absolute;
+    width: 20%;
+    height: 15%;
     display: inline-block;
     resize: both;
-    background-color: white;
-    /* min-height: 50px;
-    min-width: 50px; */
+    /* background-color: white; */
     max-height: 300px;
     max-width: 400px;
+    /* font-size: 14px; */
+    font-family: Arial, Helvetica, sans-serif;
+    background-color:#0a0a23;
+    color: #fff;
+    border: none;
+    font-size: small;
+    border-radius: 10px; 
+}
+
+.custom-button:hover {
+    background-color: #1a1a4a;
+}
+.custom-button:active {
+    background-color: #606094;
 }
 
 .custom-textbox {
@@ -175,6 +189,24 @@ body, html {
     margin-right: 5px;
 }
 
+#downloadButton {
+    top:50%;
+    background-color:#0a0a23;
+    color: #fff;
+    border:none;
+    font-size: small;
+    border-radius: 10px; 
+    min-height: 30px; 
+    min-width: 30px;
+    padding: 10px;
+}
+
+#downloadButton:hover {
+    background-color: #2a2a5d;
+}
+#downloadButton:active {
+    background-color: #606094;
+}
 /* 팝업 스타일 */
 #loading_popup {
     display: none;
