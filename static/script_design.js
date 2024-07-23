@@ -266,6 +266,7 @@ function updateWindowButtons() {
         const windowButton = document.createElement('button');
         windowButton.textContent = 'Window ' + i;
         windowButton.id = 'button-window' + i;
+        windowButton.classList.add('window-button');
         windowButton.addEventListener('click', () => {
             currentWindow = 'window' + i;
             document.querySelectorAll('.resultpage').forEach(win => {
@@ -621,7 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeColorPickerButton = document.getElementById('closeColorPickerButton');
 
     colorPickerButton.addEventListener('click', () => {
-        colorPickerContainer.style.display = 'block';
+        colorPickerContainer.style.display = 'grid';
     });
 
     applyColorButton.addEventListener('click', () => {
@@ -745,11 +746,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // @text_formatter
-    document.getElementById('text-input').addEventListener('change', function() {
-        if (btn_curclick && btn_curclick.id !== currentWindow && btn_curclick.tagName !== "DIV") {
-            btn_curclick.innerHTML = this.value;
-        }
-    });
+    // document.getElementById('text-input').addEventListener('change', function() {
+    //     if (btn_curclick && btn_curclick.id !== currentWindow && btn_curclick.tagName !== "DIV") {
+    //         btn_curclick.innerHTML = this.value;
+    //     }
+    // });
 
     document.getElementById('font-size-input').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== currentWindow) {

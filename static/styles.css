@@ -45,26 +45,48 @@ body, html {
 .resizable.top-right {
     height: 50%;
     position: relative;
+    background-color: #f0f0f0;
 }
 
 .resizable.bottom-right {
+    width: calc(100% - 12px);
     height: calc(50% - 22px);
     margin-bottom: 12px;
-    height: 50%;
-    border-bottom: none;
-    overflow-x: auto;
-    white-space: nowrap;
+    /* border-bottom: none; */
+    overflow-x: hidden;
+    /* white-space: nowrap; */
     display: flex;
-    justify-content: center; 
-    align-items: flex-start; 
+    /* align-items: flex-start;  */
     flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .resizable.bottom-right > * {
     display: inline-block;
     white-space: nowrap;
     vertical-align: top;
-    margin-right: 10px;
+    padding: 10px;
+}
+
+.resultpage {
+    position: relative;
+    overflow: auto;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+}
+
+#aspectRatioSelector {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    background-color: white;
+    padding: 5px;
+    border: 1px solid #ccc;
+    width: 60px;
+    height: 30px;
 }
 
 .resize-handle-vertical {
@@ -89,36 +111,183 @@ body, html {
     z-index: 10;
 }
 
-.resultpage {
-    position: relative;
-    overflow: auto;
-    background-color: cornflowerblue;
-    border: 1px solid #ccc;
+.header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ddd;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    flex-shrink: 0;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 600px;
+    /* margin-left: 15px;
+    margin-right: 15px; */
 }
 
-#aspectRatioSelector {
-    position: absolute;
-    top: 10px; /* 상단에서 10px 내려오도록 설정 */
-    left: 10px; /* 좌측에서 10px 떨어지도록 설정 */
-    z-index: 2; /* resultpage 위에 표시되도록 z-index 설정 */
-    background-color: white;
-    padding: 5px;
+.header span, .header button, .header a {
+    flex-grow: 1; 
+    text-align: center; 
+    white-space: nowrap; 
+}
+
+.header span {
+    font-size: 16px;
+    padding: 10px;
+    /* box-sizing: border-box; */
+}
+
+.header button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 10px;
+    /* box-sizing: border-box; */
+}
+
+.header button:hover {
+    background-color: #ccc;
+}
+
+.content {
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 10px;
+    padding: 20px;
+    grid-template-rows: auto auto;
+    width: 100%;
+    height: 80%;
+    max-width: 600px;
+    overflow-y: auto;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.section {
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
     border: 1px solid #ccc;
+    padding: 10px;
+    box-sizing: border-box;
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
+    display: flex;
+    flex-direction: column;
+    /* gap: 10px; */
+}
+
+.section input, .section select, .section button {
+    width: 100%; 
+    box-sizing: border-box; 
+}
+
+.section h2 {
+    margin-top: 0;
+}
+
+.section-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #ddd;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.section-button:hover {
+    background-color: #ccc;
 }
 
 #colorPickerContainer {
-    display: flex;
+
+    grid-template-columns: 1fr 1fr;
+    /* justify-content: space-between;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-start; */
     padding: 10px;
     background-color: white;
     border: 1px solid #ccc;
     margin-top: 10px;
+    box-sizing: border-box;
+    gap: 3px;
+}
+
+
+/* #colorPicker {
+    margin-bottom: 5px;
+    width: 70px;
+}
+#hexColorInput {
+    margin-bottom: 5px;
+    width: 100px;
+} */
+
+
+#window-buttons {
+    max-height: 100px;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
     margin-bottom: 10px;
 }
 
-#colorPicker, #hexColorInput {
-    margin-bottom: 5px;
+.window-button {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    /* margin: 5px 0; */
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-bottom: 3px;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 8px; 
+}
+
+label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+input[type="text"], input[type="number"], input[type="color"], select {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+}
+
+input[type="range"] {
+    width: 100%;
+}
+
+#border {
+    display: flex;
+    justify-content: space-between;
+}
+
+#border input {
+    width: 48%;
+}
+
+#zIndex {
+    display: flex;
+    justify-content: space-between;
+}
+
+#zIndex button {
+    width: 48%;
+    padding: 5px;
+    cursor: pointer;
+}
+
+#zIndex button:hover {
+    background-color: #ccc;
 }
 
 .custom-button {
@@ -134,7 +303,7 @@ body, html {
     font-family: Arial, Helvetica, sans-serif;
     background-color:#0a0a23;
     color: #fff;
-    border: none;
+    /* border: none; */
     font-size: small;
     border-radius: 10px; 
 }
@@ -183,12 +352,16 @@ body, html {
 
 #boldButton, 
 #italicButton, 
+#underlineButton,
 #superscriptButton, 
 #subscriptButton {
     font-weight: bold;
     margin-right: 5px;
+    width: 30px;
+    height: 20px; /* input, select, button 요소의 너비를 섹션 안으로 맞춤 */
+    text-align: center;
 }
-
+/* 
 #downloadButton {
     top:50%;
     background-color:#0a0a23;
@@ -199,14 +372,14 @@ body, html {
     min-height: 30px; 
     min-width: 30px;
     padding: 10px;
-}
-
+} */
+/* 
 #downloadButton:hover {
     background-color: #2a2a5d;
 }
 #downloadButton:active {
     background-color: #606094;
-}
+} */
 /* 팝업 스타일 */
 #loading_popup {
     display: none;
