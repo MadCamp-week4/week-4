@@ -497,15 +497,22 @@ function dragElement(element) {
         const newTop = Math.max(0, Math.min(resultPage.offsetHeight - element.offsetHeight, element.offsetTop - pos2));
         const newLeft = Math.max(0, Math.min(resultPage.offsetWidth - element.offsetWidth, element.offsetLeft - pos1));
 
-        element.style.top = newTop + "px";
-        element.style.left = newLeft + "px";
+        topPercent = newTop * 100 / resultPage.offsetHeight;
+        leftPercent = newLeft * 100 / resultPage.offsetWidth;
+
+        element.style.top = topPercent + '%';
+        element.style.left = leftPercent + '%';
     }
 
     function elementResize(e) {
         e.preventDefault();
         const rect = element.getBoundingClientRect();
-        element.style.width = (e.clientX - rect.left) + 'px';
-        element.style.height = (e.clientY - rect.top) + 'px';
+        const resultRect = resultPage.getBoundingClientRect();
+
+        widthPercent = (e.clientX - rect.left) * 100 / resultRect.width;
+        heightPercent = (e.clientY - rect.top) * 100 / resultRect.height;
+        element.style.width = widthPercent + '%';
+        element.style.height = heightPercent + '%';
     }
 
     function closeDragElement() {
