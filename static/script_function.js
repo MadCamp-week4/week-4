@@ -22,12 +22,28 @@ async function submitCode(HTML, jsCode) {
     return result;
 }
 
-async function getSubmissionResult(submissionId) {
-    const response = await fetch(`${API_ENDPOINT}/submission_result/${submissionId}`);
-    const result = await response.json();
-    return result;
+// 서버에 요청중인 팝업 띄우고 닫기 @show_loading_popup
+function showPopup() {
+    document.getElementById('loading_popup').style.display = 'flex';
+    document.getElementById('loading_spinner').style.display = 'block';
+    document.getElementById('loading_text').style.display = 'block';
+    document.getElementById('result_text').style.display = 'none';
+    document.getElementById('confirm_button').style.display = 'none';
 }
 
+// 팝업 닫기 @hide_loading_popup
+function hidePopup() {
+    document.getElementById('loading_popup').style.display = 'none';
+}
+
+// 팝업에 요청 결과 띄우기 @show_server_result
+function showResult(message) {
+    document.getElementById('loading_spinner').style.display = 'none';
+    document.getElementById('loading_text').style.display = 'none';
+    document.getElementById('result_text').style.display = 'block';
+    document.getElementById('result_text').innerText = message;
+    document.getElementById('confirm_button').style.display = 'block';
+}
 
 const createDropdownOptions = (variables) => {
     return variables.map(variable => [variable, variable]);
@@ -49,6 +65,7 @@ var updateDropdownOptions = (elementId) => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('loading_popup').style.display = 'none';
     const blocklyDiv = document.querySelector('#blocklyDiv');
     const generateCodeButton = document.getElementById('generateCodeButton');
 
@@ -60,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     customVariables = Array.from(childElements).map(v => v.id);
 
     window.updateDropdownOptions = updateDropdownOptions;
+    document.getElementById('confirm_button').addEventListener('click', hidePopup);
 
     fetch('/static/toolbox.xml')
       .then(response => response.text())
@@ -203,11 +221,15 @@ document.addEventListener('DOMContentLoaded', () => {
         Blockly.svgResize(workspace);
 
         // 버튼 클릭 이벤트 리스너
+        
+        var resultmessage=  "";
         generateCodeButton.addEventListener('click', async () => {
             const code = Blockly.JavaScript.workspaceToCode(workspace);
             JS_code = "document.addEventListener('DOMContentLoaded', () => {\n" + code + "\n})";
             const resultPageHTML = document.querySelector('#resultpage-container').innerHTML;
-    
+
+            showPopup();
+            
             try {
                 const result = await submitCode(resultPageHTML,JS_code);
 
@@ -215,34 +237,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log(result);
                 if(result_code == 15) // accept, 에러 없음
                 {
-                    
+                    resultmessage = "Your code is perfect!";
                 }
                 else if(result_code == 11) // compilation error
                 {
-
+                    resultmessage = "Compilation Error occured.";
                 }
                 else if(result_code == 12) // runtime error
                 {
-
+                    resultmessage = "Runtime Error occured.";
                 }
                 else if(result_code == 13) // time limit exceeded
                 {
-
+                    resultmessage = "Time Limit Exceed occured.";
                 }
                 else if(result_code == 17) // memory limit exceeded
                 {
-
+                    resultmessage = "Memory Limit Exceed occured.";
                 }
                 else if(result_code == 19) // illegal system call
                 {
-
+                    resultmessage = "Illegal System Call occured.";
                 }
                 else if(result_code == 20) // internal error
                 {
-
+                    resultmessage = "Internal Error occured.";
                 }
+
+                
             } catch (error) {
                 console.error("Error:", error);
+            } finally {
+                showResult(resultmessage);
             }
         });
       })

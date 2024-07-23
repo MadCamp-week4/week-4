@@ -11,6 +11,9 @@
 | id 가져오기 | @html_component_id |
 | id를 받아 text 가져오기 | @html_component_innerText|
 | id를 받아 color 가져오기 | @html_component_color|
+| 서버에 컴파일 요청 중인 팝업 띄우기 | @show_loading_popup |
+| 요청 중인 팝업 닫기 | @hide_loading_popup |
+| 팝업에 요청한 결과 띄우기 | @show_server_result |
 
 > script_design.js
 
