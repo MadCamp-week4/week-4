@@ -26,6 +26,12 @@ const codeOptions = [
 ];
 
 var JS_code = "";
+
+const pre_defined_func = `
+function sleep(ms) {
+    return new Promise((r) => setTimeout(r, ms));
+  }
+`;
 var JS_code_sucess = "";
 
 const API_ENDPOINT = 'http://127.0.0.1:50585'; // Flask 서버 주소
@@ -69,6 +75,10 @@ function showResult(message) {
 const createDropdownOptions = (variables) => {
     return variables.map(variable => [variable, variable]);
 };
+
+function createDropdownOptions_forstyles(elements) {
+    return elements.map(element => [element.name, element.name]);
+}
 
 // 드롭다운 업데이트 함수
 var updateDropdownOptions = (elementId) => {
@@ -126,48 +136,55 @@ document.addEventListener('DOMContentLoaded', () => {
             return [code, Blockly.JavaScript.ORDER_NONE];
         };
 
-        // get variables with type "HTML_COMPONENT" and return text, @html_component_innerText
-        Blockly.Blocks['html_component_innerText'] = {
-            init: function() {
-              this.appendValueInput("NAME")
-                  .setCheck("HTML_COMPONENT")
-                  .appendField("innerText of");
-              this.setOutput(true, 'String');
-              this.setColour(160);
-              this.setTooltip("text of HTML Component");
-              this.setHelpUrl("");
-            }
-          };
+        //스타일 요소 블럭 정의 @html_component_styles
+        // 스타일 요소와 tooltip 배열
+        const styleElements = [
+            { name: 'innerText', tooltip: 'Text of HTML Component', isStyle: false, isNumber: false },
+            { name: 'backgroundColor', tooltip: 'Background color of HTML Component', isStyle: true, isNumber: false },
+            { name: 'color', tooltip: 'Text color of HTML Component', isStyle: true, isNumber: false },
+            { name: 'fontSize', tooltip: 'Font size of HTML Component', isStyle: true, isNumber: false },
+            { name: 'fontWeight', tooltip: 'Font weight of HTML Component', isStyle: true, isNumber: false },
+            { name: 'textAlign', tooltip: 'Text alignment of HTML Component', isStyle: true, isNumber: false },
+            { name: 'width', tooltip: 'Width of HTML Component', isStyle: true, isNumber: false },
+            { name: 'height', tooltip: 'Height of HTML Component', isStyle: true, isNumber: false },
+            { name: 'margin', tooltip: 'Margin of HTML Component', isStyle: true, isNumber: false },
+            { name: 'padding', tooltip: 'Padding of HTML Component', isStyle: true, isNumber: false },
+            { name: 'border', tooltip: 'Border of HTML Component', isStyle: true, isNumber: false },
+            { name: 'display', tooltip: 'Display style of HTML Component', isStyle: true, isNumber: false },
+            { name: 'visibility', tooltip: 'Visibility of HTML Component', isStyle: true, isNumber: false },
+            { name: 'position', tooltip: 'Position of HTML Component', isStyle: true, isNumber: false },
+            { name: 'top', tooltip: 'Top position of HTML Component', isStyle: true, isNumber: false },
+            { name: 'right', tooltip: 'Right position of HTML Component', isStyle: true, isNumber: false },
+            { name: 'bottom', tooltip: 'Bottom position of HTML Component', isStyle: true, isNumber: false },
+            { name: 'left', tooltip: 'Left position of HTML Component', isStyle: true, isNumber: false },
+            { name: 'zIndex', tooltip: 'Z-index of HTML Component', isStyle: true, isNumber: true },
+            { name: 'opacity', tooltip: 'Opacity of HTML Component', isStyle: true, isNumber: true },
+            { name: 'overflow', tooltip: 'Overflow of HTML Component', isStyle: true, isNumber: false },
+            { name: 'cursor', tooltip: 'Cursor style of HTML Component', isStyle: true, isNumber: false }
+        ];
 
-        // HTML Component Block 코드 생성기
-        Blockly.JavaScript.forBlock['html_component_innerText'] = function(block,generator) {
-            var htmlComponent = Blockly.JavaScript.valueToCode(block, 'NAME', Blockly.JavaScript.ORDER_ATOMIC);
-            // 텍스트로 반환
-            var code = `document.getElementById(${htmlComponent}).innerText`;
-            return [code, Blockly.JavaScript.ORDER_NONE];
-        };
+        styleElements.forEach(element => {
+            // 블럭 정의
+            Blockly.Blocks[`html_component_${element.name}`] = {
+                init: function() {
+                    this.appendValueInput("NAME")
+                        .setCheck("HTML_COMPONENT")
+                        .appendField(`${element.name} of`);
+                    this.setOutput(true, element.isNumber ? 'Number' : 'String');
+                    this.setColour(160);
+                    this.setTooltip(element.tooltip);
+                    this.setHelpUrl("");
+                }
+            };
 
-        //html component의 색깔 가져오기, @html_component_color
-        Blockly.Blocks['html_component_color'] = {
-            init: function() {
-              this.appendValueInput("NAME")
-                  .setCheck("HTML_COMPONENT")
-                  .appendField("background color of");
-              this.setOutput(true, 'String');
-              this.setColour(160);
-              this.setTooltip("text of HTML Component");
-              this.setHelpUrl("");
-            }
-          };
-
-        
-        Blockly.JavaScript.forBlock['html_component_color'] = function(block,generator) {
-            var htmlComponent = Blockly.JavaScript.valueToCode(block, 'NAME', Blockly.JavaScript.ORDER_ATOMIC);
-            // 텍스트로 반환
-            var code = `document.getElementById(${htmlComponent}).style.backgroundColor`;
-            return [code, Blockly.JavaScript.ORDER_NONE];
-        };
-
+            // JavaScript 코드 생성기 정의
+            Blockly.JavaScript.forBlock[`html_component_${element.name}`] = function(block,generator) {
+                var htmlComponent = Blockly.JavaScript.valueToCode(block, 'NAME', Blockly.JavaScript.ORDER_ATOMIC);
+                // 텍스트로 반환
+                var code = element.isStyle ? `document.getElementById(${htmlComponent}).style.${element.name}` : `document.getElementById(${htmlComponent}).${element.name}`;
+                return [code, Blockly.JavaScript.ORDER_NONE];
+            };
+        });
 
         //blockly 블럭 정의 @define_event_blocks
         const events = [
@@ -212,39 +229,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
         Blockly.Blocks['set_html_component_value'] = {
             init: function() {
-              this.appendValueInput("FROM")
-                  .setCheck("HTML_COMPONENT")
-                  .appendField("Set")
-                  .appendField(new Blockly.FieldDropdown(createDropdownOptions(HTML_values)),'HTML_VALUES')
-                  .appendField("of");
-              this.appendDummyInput()
-                  .appendField("to");
-              this.appendValueInput("TO")
-                  .setCheck(null);
-              this.setPreviousStatement(true, null);
-              this.setNextStatement(true, null);
-              this.setColour(100);
-           this.setTooltip("");
-           this.setHelpUrl("");
+                this.appendValueInput("FROM")
+                    .setCheck("HTML_COMPONENT")
+                    .appendField("Set")
+                    .appendField(new Blockly.FieldDropdown(createDropdownOptions_forstyles(styleElements)), 'HTML_VALUES')
+                    .appendField("of");
+                this.appendDummyInput()
+                    .appendField("to");
+                this.appendValueInput("TO")
+                    .setCheck(null);
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour(100);
+                this.setTooltip("");
+                this.setHelpUrl("");
+        
+                this.setOnChange(function(changeEvent) {
+                    var htmlValue = this.getFieldValue('HTML_VALUES');
+                    var element = styleElements.find(el => el.name === htmlValue);
+                    if (element && element.isNumber) {
+                        this.getInput('TO').setCheck('Number');
+                    } else {
+                        this.getInput('TO').setCheck(null);
+                    }
+                });
             }
-          };
-
-          javascript.javascriptGenerator.forBlock['set_html_component_value'] = function(block, generator) {
-            var variable_name = generator.nameDB_.getName(block.getFieldValue('HTML_VALUES'), Blockly.Variables.NAME_TYPE);
-            var value_from = generator.valueToCode(block, 'FROM', javascript.Order.ATOMIC);
-            var value_to = generator.valueToCode(block, 'TO', javascript.Order.ATOMIC);
+        };
+        
+        Blockly.JavaScript.forBlock['set_html_component_value'] = function(block,g) {
+            var variable_name = block.getFieldValue('HTML_VALUES');
+            var value_from = Blockly.JavaScript.valueToCode(block, 'FROM', Blockly.JavaScript.ORDER_ATOMIC);
+            var value_to = Blockly.JavaScript.valueToCode(block, 'TO', Blockly.JavaScript.ORDER_ATOMIC);
             var code = '';
-
-            if(variable_name == "innerText") {
-                code = `document.getElementById${value_from}.innerText = ${value_to};`;
-            }
-            else if(variable_name == "backgroundColor"){
-                code = `document.getElementById${value_from}.style.backgroundColor = ${value_to};`;
+        
+            if (variable_name === 'innerText') {
+                code = `document.getElementById(${value_from}).innerText = ${value_to};\n`;
+            } else {
+                code = `document.getElementById(${value_from}).style.${variable_name} = ${value_to};\n`;
             }
             return code;
-          };
+        };
 
           //////////////////KEYBOARD EVENTS////////////////////
+          //@keyboard_keydown
           Blockly.Blocks['keyboard_keydown'] = {
             init: function() {
               this.appendDummyInput()
@@ -290,6 +317,81 @@ document.addEventListener('DOMContentLoaded', () => {
             
             return code;
           };
+        
+        //keyboard_keyup
+        // 블럭 정의 (keyup)
+        Blockly.Blocks['keyboard_keyup'] = {
+            init: function() {
+            this.appendDummyInput()
+                .appendField("Keyboard Keyup for")
+                .appendField(new Blockly.FieldDropdown([
+                    ['key', 'KEY'], 
+                    ['code', 'CODE']
+                ], function(option) {
+                    // Dropdown 변경시 두 번째 dropdown 갱신
+                    const keyBlock = this.getSourceBlock();
+                    const keyDropdown = keyBlock.getField('KEY_TYPE');
+                    if (option === 'KEY') {
+                    keyDropdown.menuGenerator_ = keyOptions.map(k => [k, k]);
+                    } else {
+                    keyDropdown.menuGenerator_ = codeOptions.map(c => [c, c]);
+                    }
+                    keyDropdown.setValue(keyDropdown.menuGenerator_[0][1]);
+                }), 'TYPE')
+                .appendField(new Blockly.FieldDropdown(keyOptions.map(k => [k, k])), "KEY_TYPE");
+            this.appendStatementInput("NAME")
+                .setCheck(null);
+            this.setColour(50);
+            this.setTooltip("");
+            this.setHelpUrl("");
+            }
+        };
+        
+        // JavaScript 생성기 정의 (keyup)
+        Blockly.JavaScript.forBlock['keyboard_keyup'] = function(block,generator) {
+            const type = block.getFieldValue('TYPE');
+            const keyType = block.getFieldValue('KEY_TYPE');
+            const statements_name = Blockly.JavaScript.statementToCode(block, 'NAME');
+            
+            const eventKey = type === 'KEY' ? 'event.key' : 'event.code';
+            
+            const code = `
+            document.addEventListener('keyup', (event) => {
+            if (${eventKey} === '${keyType}') {
+                ${statements_name}
+            }
+            });
+            `;
+            
+            return code;
+        };
+
+        ///////////// flow blocks /////////////
+        // Wait 블록 정의
+        Blockly.Blocks['wait'] = {
+            init: function() {
+              this.appendDummyInput()
+                  .appendField("wait for")
+                  .appendField(new Blockly.FieldNumber(0, 0), "DURATION")
+                  .appendField("milliseconds");
+              this.appendStatementInput("NEXT")
+                  .setCheck(null)
+                  .appendField("do");
+              this.setPreviousStatement(true, null);
+              this.setNextStatement(true, null);
+              this.setColour(10);
+              this.setTooltip("");
+              this.setHelpUrl("");
+            }
+          };
+        
+        // JavaScript 코드 생성기
+        Blockly.JavaScript.forBlock['wait'] = function(block,g) {
+            var duration = block.getFieldValue('DURATION');
+            var nextCode = Blockly.JavaScript.statementToCode(block, 'NEXT');
+            var code = `sleep(${duration}).then(() => {\n${nextCode}\n});\n`;
+            return code;
+        };
 
         //workspace 저장
         workspace = Blockly.inject(blocklyDiv, {
@@ -304,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
         var resultmessage=  "";
         generateCodeButton.addEventListener('click', async () => {
             const code = Blockly.JavaScript.workspaceToCode(workspace);
-            JS_code = "document.addEventListener('DOMContentLoaded', () => {\n" + code + "\n})";
+            JS_code = pre_defined_func + "\ndocument.addEventListener('DOMContentLoaded', () => {\n" + code + "\n})";
             const resultPageHTML = document.querySelector('#resultpage-container').innerHTML;
 
             showPopup();

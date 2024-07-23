@@ -8,6 +8,7 @@ app = Flask(__name__)
 API_KEY = "76e081612384877ee93d93d579dc2992"
 API_ENDPOINT = "https://2ba4c51b.compilers.sphere-engine.com/api/v4"
 COMPILER_ID = 56  # ID for node.js
+versionID = 8
 
 @app.route('/')
 def index():
@@ -62,6 +63,7 @@ let document = {{
         response = requests.post(
             f"{API_ENDPOINT}/submissions",
             data={
+                'compilerVersionId' : versionID,
                 'compilerId': COMPILER_ID,
                 'source': combined_code,
                 'input': ''  # Add input data here if needed

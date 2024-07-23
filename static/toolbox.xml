@@ -340,7 +340,27 @@
       <category name="HTML components" colour = "160" >
       <block type = "html_component_id"></block>
       <block type="html_component_innerText"></block>
-      <block type = "html_component_color"></block>
+      <block type="html_component_backgroundColor"></block>
+      <block type="html_component_color"></block>
+      <block type="html_component_fontSize"></block>
+      <block type="html_component_fontWeight"></block>
+      <block type="html_component_textAlign"></block>
+      <block type="html_component_width"></block>
+      <block type="html_component_height"></block>
+      <block type="html_component_margin"></block>
+      <block type="html_component_padding"></block>
+      <block type="html_component_border"></block>
+      <block type="html_component_display"></block>
+      <block type="html_component_visibility"></block>
+      <block type="html_component_position"></block>
+      <block type="html_component_top"></block>
+      <block type="html_component_right"></block>
+      <block type="html_component_bottom"></block>
+      <block type="html_component_left"></block>
+      <block type="html_component_zIndex"></block>
+      <block type="html_component_opacity"></block>
+      <block type="html_component_overflow"></block>
+      <block type="html_component_cursor"></block>
       <block type = "set_html_component_value"></block>
       </category>
 
@@ -354,5 +374,10 @@
 
       <category name = "Keyboard Event" colour = "50">
       <block type = "keyboard_keydown"></block>
+      <block type = "keyboard_keyup"></block>
+      </category>
+
+      <category name = "Flow" colour = "10">
+      <block type = "wait"></block>
       </category>
   </xml>

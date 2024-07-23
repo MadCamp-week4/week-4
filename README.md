@@ -9,9 +9,10 @@
 | 기능 | keyword |
 | --- | ------- |
 | id 가져오기 | @html_component_id |
-| id를 받아 text 가져오기 | @html_component_innerText|
-| id를 받아 color 가져오기 | @html_component_color|
-| 이벤트 블록 정의 | @define_event_blocks |
+| id를 받아 스타일 가져오기 | @html_component_styles |
+| eventlistener 이벤트 블록 정의 | @define_event_blocks |
+| keydown 이벤트 블록 정의 | @keyboard_keydown|
+| keyup 이벤트 블록 정의 | @keyboard_keyup |
 | 서버에 컴파일 요청 중인 팝업 띄우기 | @show_loading_popup |
 | 요청 중인 팝업 닫기 | @hide_loading_popup |
 | 팝업에 요청한 결과 띄우기 | @show_server_result |
