@@ -319,6 +319,7 @@ function addButtonToResultPage() {
         event.stopPropagation();  // 이벤트 버블링 방지
         btn_curclick = event.target;
         console.log('Selected button ID:', btn_curclick.id);
+        document.getElementById('name-input').value = btn_curclick.id;
         document.getElementById("border-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('border-color'));
         document.getElementById("border-width-input").value = extractFirstPxValue(window.getComputedStyle(event.target).getPropertyValue('border-width'));
         document.getElementById("border-radius-input").value = window.getComputedStyle(event.target).getPropertyValue('border-radius').replace('px', '');
@@ -379,6 +380,7 @@ function addTextboxToResultPage() {
         event.stopPropagation(); 
         btn_curclick = event.target;
         console.log('Selected textbox ID:', btn_curclick.id);
+        document.getElementById("font-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('color'));
         document.getElementById("border-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('border-color'));
         document.getElementById("border-width-input").value = extractFirstPxValue(window.getComputedStyle(event.target).getPropertyValue('border-width'));
         document.getElementById("border-radius-input").value = window.getComputedStyle(event.target).getPropertyValue('border-radius').replace('px', '');
@@ -439,12 +441,10 @@ function addTextboxToResultPage() {
         cssMap[cssId]['text'] = txtbox.textContent;
     });
 
-    // document.querySelector(".resultpage").appendChild(txtbox);
     document.getElementById(currentWindow).appendChild(txtbox);
 
     dragElement(txtbox);
     txtbox_num += 1;
-    // scaleElements();
 }
 
 
@@ -490,7 +490,7 @@ function addTextToResultPage() {
             mainContent.classList.remove('blur-background');
         };
     });
-
+    
     document.getElementById(currentWindow).appendChild(textDiv);
     dragElement(textDiv);
 }
@@ -523,9 +523,6 @@ function dragElement(element) {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     const resultPage = document.getElementById(currentWindow);
     let isResizing = false;
-
-    const height = extractFirstPxValue(window.getComputedStyle(resultPage).getPropertyValue('height'));
-    const width = extractFirstPxValue(window.getComputedStyle(resultPage).getPropertyValue('width'));
 
     if (element) {
         element.onmousedown = dragMouseDown;
@@ -561,6 +558,10 @@ function dragElement(element) {
         pos2 = pos4 - e.clientY;
         pos3 = e.clientX;
         pos4 = e.clientY;
+
+        const height = extractFirstPxValue(window.getComputedStyle(resultPage).getPropertyValue('height'));
+        const width = extractFirstPxValue(window.getComputedStyle(resultPage).getPropertyValue('width'));
+
         const elementHeight = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('height'));
         const elementWidth = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('width'));
         const elementTop = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('top'));
@@ -568,7 +569,6 @@ function dragElement(element) {
 
         const newTop = Math.max(0, Math.min(height - elementHeight, elementTop - pos2));
         const newLeft = Math.max(0, Math.min(width - elementWidth, elementLeft - pos1));
-        console.log(newTop, newLeft);
 
         element.style.top = newTop + 'px';
         element.style.left = newLeft + 'px';
@@ -577,10 +577,11 @@ function dragElement(element) {
     function elementResize(e) {
         e.preventDefault();
         const rect = element.getBoundingClientRect();
-        widthPercent = (e.clientX - rect.left) * 100 / width;
-        heightPercent = (e.clientY - rect.top) * 100 / height;
-        element.style.width = widthPercent + '%';
-        element.style.height = heightPercent + '%';
+        const newWidth = (e.clientX - rect.left);
+        const newHeight = (e.clientY - rect.top);
+
+        element.style.width = newWidth + 'px';
+        element.style.height = newHeight + 'px';
     }
 
     function closeDragElement() {
@@ -588,6 +589,8 @@ function dragElement(element) {
         document.onmousemove = null;
         isResizing = false;
 
+        const height = extractFirstPxValue(window.getComputedStyle(resultPage).getPropertyValue('height'));
+        const width = extractFirstPxValue(window.getComputedStyle(resultPage).getPropertyValue('width'));
         const elementTop = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('top'));
         const elementLeft = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('left'));
 
@@ -611,11 +614,24 @@ function dragElement(element) {
         document.onmousemove = null;
         isResizing = false;
 
+        const width = extractFirstPxValue(window.getComputedStyle(resultPage).getPropertyValue('width'));
+        const height = extractFirstPxValue(window.getComputedStyle(resultPage).getPropertyValue('height'));
+        const elementWidth = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('width'));
+        const elementHeight = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('height'));
+        
+        widthPercent = elementWidth * 100 / width;
+        heightPercent = elementHeight * 100 / height;
+
+        element.style.overflow = 'auto';
+        element.style.width = widthPercent + '%';
+        element.style.height = heightPercent + '%';
+
         cssId = '#' + element.id;
         if (cssMap[cssId]) {
             cssMap[cssId]['width'] = window.getComputedStyle(element).getPropertyValue('width');
             cssMap[cssId]['height'] = window.getComputedStyle(element).getPropertyValue('height');
         }
+        element.style.overflow = null;
     }
 }
 
@@ -705,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
     deleteElementButton.addEventListener('click', () => {
         removeElement();
     });
-
+    
     const addTextButton = document.getElementById('addText');
     addTextButton.addEventListener('click', () => {
         addTextToResultPage();
@@ -798,9 +814,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // @text_formatter
-    // document.getElementById('text-input').addEventListener('change', function() {
+    // document.getElementById('name-input').addEventListener('change', function() {
     //     if (btn_curclick && btn_curclick.id !== currentWindow && btn_curclick.tagName !== "DIV") {
-    //         btn_curclick.innerHTML = this.value;
+    //         btn_curclick.id = this.value;
     //     }
     // });
 
@@ -838,25 +854,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('font-color-input').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== currentWindow) {
             const selection = window.getSelection(); 
-            if (selection.rangeCount) {
-                const range = selection.getRangeAt(0);
-                if (range && !range.collapsed) {
-                    const parentElement = range.commonAncestorContainer.parentElement;
-                    if (parentElement.tagName === 'SPAN') {
-                        parentElement.style.color = this.value;
-                    } else {
-                        const span = document.createElement('span');
-                        span.style.color = this.value;
-                        span.appendChild(range.extractContents());
-                        range.insertNode(span);
-                        selection.removeAllRanges();
-                        selection.addRange(range);
-                    }
-                }
-            }
-            else {
-                btn_curclick.style.color = this.value;
-            }
+            // if (selection.rangeCount) {
+            //     const range = selection.getRangeAt(0);
+            //     if (range && !range.collapsed) {
+            //         const parentElement = range.commonAncestorContainer.parentElement;
+            //         if (parentElement.tagName === 'SPAN') {
+            //             parentElement.style.color = this.value;
+            //         } else {
+            //             const span = document.createElement('span');
+            //             span.style.color = this.value;
+            //             span.appendChild(range.extractContents());
+            //             range.insertNode(span);
+            //             selection.removeAllRanges();
+            //             selection.addRange(range);
+            //         }
+            //     }
+            // }
+            // else {
+            btn_curclick.style.color = this.value;
+            // }
 
             cssId = '#' + btn_curclick.id;
             if (!cssMap[cssId]) {
