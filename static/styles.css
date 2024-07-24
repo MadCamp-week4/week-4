@@ -301,19 +301,19 @@ input[type="range"] {
     max-width: 400px;
     /* font-size: 14px; */
     font-family: Arial, Helvetica, sans-serif;
-    background-color:#0a0a23;
-    color: #fff;
+    /* background-color:#0a0a23; */
+    /* color: #fff; */
     /* border: none; */
-    font-size: small;
-    border-radius: 10px; 
+    /* font-size: small; */
+    border-radius: 10px;
 }
-
+/* 
 .custom-button:hover {
     background-color: #1a1a4a;
 }
 .custom-button:active {
     background-color: #606094;
-}
+} */
 
 .custom-textbox {
     /* position: relative; */
@@ -322,11 +322,16 @@ input[type="range"] {
     background-color: white;
     /* min-height: 50px;
     min-width: 50px; */
-    text-align: center;
+    /* text-align: center; */
     justify-content: center;
-    align-items: center;
+    /*align-items: center;*/
     max-height: 300px;
     max-width: 400px;
+    display: block;
+    word-break: break-all;
+    /* padding-inline-start: 5px; */
+    padding: 5px;
+    overflow-y: auto;
 }
 
 .custom-textbox[contenteditable]:empty:before {
@@ -458,4 +463,15 @@ input[type="range"] {
 
 .blur-background {
     filter: blur(5px);
+}
+
+code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: smaller;
+    line-height: 100%;
+    background-color: #eee;
+    padding: 0.2em;
+    letter-spacing: -0.05em;
+    word-break: normal;
+    border-radius: 5px;
 }
