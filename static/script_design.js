@@ -576,15 +576,11 @@ function dragElement(element) {
     function elementResize(e) {
         e.preventDefault();
         const rect = element.getBoundingClientRect();
+        const newWidth = (e.clientX - rect.left);
+        const newHeight = (e.clientY - rect.top);
 
-        const height = extractFirstPxValue(window.getComputedStyle(resultPage).getPropertyValue('height'));
-        const width = extractFirstPxValue(window.getComputedStyle(resultPage).getPropertyValue('width'));
-        widthPercent = (e.clientX - rect.left) * 100 / width;
-        heightPercent = (e.clientY - rect.top) * 100 / height;
-
-        element.style.overflow = 'auto';
-        element.style.width = widthPercent + '%';
-        element.style.height = heightPercent + '%';
+        element.style.width = newWidth + 'px';
+        element.style.height = newHeight + 'px';
     }
 
     function closeDragElement() {
@@ -616,6 +612,18 @@ function dragElement(element) {
         document.onmouseup = null;
         document.onmousemove = null;
         isResizing = false;
+
+        const width = extractFirstPxValue(window.getComputedStyle(resultPage).getPropertyValue('width'));
+        const height = extractFirstPxValue(window.getComputedStyle(resultPage).getPropertyValue('height'));
+        const elementWidth = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('width'));
+        const elementHeight = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('height'));
+        
+        widthPercent = elementWidth * 100 / width;
+        heightPercent = elementHeight * 100 / height;
+
+        element.style.overflow = 'auto';
+        element.style.width = widthPercent + '%';
+        element.style.height = heightPercent + '%';
 
         cssId = '#' + element.id;
         if (cssMap[cssId]) {
