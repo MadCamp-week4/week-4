@@ -132,12 +132,6 @@ function parseCssMapToJson(cssMap) {
         for (const [selector, styles] of Object.entries(cssMap)) {
             cssString += `${selector} {\n`;
 
-            // Border properties
-            if (styles['border-radius-input']) {
-                cssString += `    border-radius: ${styles['border-radius-input']};\n`;
-                delete styles['border-radius-input'];
-            }
-
             for (const [property, value] of Object.entries(styles)) {
                 if (selector.match(/^#window\d+$/)) {
                     if (property === 'width' || property === 'height') {
@@ -359,9 +353,9 @@ function addButtonToResultPage() {
         'resize': "true",
         'fontSize': "14px",
         'fontFamily': "Arial",
-        "border-color-input": document.getElementById("border-color-input").value,
-        "border-width-input": document.getElementById("border-width-input").value,
-        "border-radius-input": document.getElementById("border-radius-input").value,
+        "border-color": document.getElementById("border-color-input").value,
+        "border-width": document.getElementById("border-width-input").value,
+        "border-radius": document.getElementById("border-radius-input").value,
         "background-color": 'white',
         "opacity": document.getElementById("element-background-opacity").value
     }
@@ -430,9 +424,9 @@ function addTextboxToResultPage() {
         'zIndex': txtbox_num,
         'fontSize': "14px",
         'fontFamily': "Arial",
-        "border-color-input": document.getElementById("border-color-input").value,
-        "border-width-input": document.getElementById("border-width-input").value,
-        "border-radius-input": document.getElementById("border-radius-input").value,
+        "border-color": document.getElementById("border-color-input").value,
+        "border-width": document.getElementById("border-width-input").value,
+        "border-radius": document.getElementById("border-radius-input").value,
         "opacity": document.getElementById("element-background-opacity").value,
         'name-input': document.getElementById('name-input').value,
     }
@@ -777,7 +771,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!cssMap[cssId]) {
                 cssMap[cssId] = {};
             }
-            cssMap[cssId]['border-radius-input'] = this.value + 'px';
+            cssMap[cssId]['border-radius'] = this.value + 'px';
         }
     });
 
@@ -788,7 +782,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!cssMap[cssId]) {
                 cssMap[cssId] = {};
             }
-            cssMap[cssId]['border-color-input'] = this.value;
+            cssMap[cssId]['border-color'] = this.value;
         }
     });
 
@@ -799,7 +793,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!cssMap[cssId]) {
                 cssMap[cssId] = {};
             }
-            cssMap[cssId]['border-width-input'] = this.value + 'px';
+            cssMap[cssId]['border-width'] = this.value + 'px';
         }
     });
 
