@@ -219,6 +219,7 @@ function addWindow() {
     const newWindow = document.createElement('div');
     newWindow.classList.add('resultpage');
     newWindow.id = 'window' + windowCount;
+    updateDropdownWindows(newWindow.id);
     newWindow.style.position = "relative";
     document.getElementById('resultpage-container').appendChild(newWindow);
     updateWindowButtons();
@@ -637,7 +638,6 @@ function removeElement() {
 document.addEventListener('DOMContentLoaded', () => {
     // Call the function to load the HTML into the resultpage element
     loadHTML('../static/user/preview.html', 'resultpage-container');
-
     // Adjust the resultpage size on window resize
     window.addEventListener('resize', adjustResultPageSize);
 

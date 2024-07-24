@@ -13,6 +13,9 @@
 | eventlistener 이벤트 블록 정의 | @define_event_blocks |
 | keydown 이벤트 블록 정의 | @keyboard_keydown|
 | keyup 이벤트 블록 정의 | @keyboard_keyup |
+| 윈도우 이동하기 | @move_window |
+| 윈도우 id 가져오기 | @window_id |
+| 다른 윈도우로 서서히 전환 | @window_fade | 
 | 서버에 컴파일 요청 중인 팝업 띄우기 | @show_loading_popup |
 | 요청 중인 팝업 닫기 | @hide_loading_popup |
 | 팝업에 요청한 결과 띄우기 | @show_server_result |

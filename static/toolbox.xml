@@ -379,5 +379,8 @@
 
       <category name = "Flow" colour = "10">
       <block type = "wait"></block>
+      <block type = "window_id"></block>
+      <block type = "window_move"></block>
+      <block type = "window_fade"></block>
       </category>
   </xml>

@@ -1,7 +1,6 @@
 let workspace;
 let customVariables = [];
-const API_KEY = "76e081612384877ee93d93d579dc2992";
-const COMPILER_ID = "55"; // https://sphere-engine.com/supported-languages
+let windowVariables = [];
 
 var HTML_values = ["innerText","backgroundColor"];
 // 키 리스트
@@ -90,6 +89,21 @@ var updateDropdownOptions = (elementId) => {
             if (dropdown) {
                 dropdown.menuGenerator_ = createDropdownOptions(customVariables);
                 dropdown.setValue(elementId); // 새로 추가된 항목을 기본값으로 설정
+            }
+        }
+    });
+};
+
+// 드롭다운 업데이트 함수 (윈도우)
+var updateDropdownWindows = (windowId) => {
+    windowVariables.push(windowId);
+    const blocks = workspace.getAllBlocks();
+    blocks.forEach(block => {
+        if (block.type === 'window_id') {
+            const dropdown = block.getField('WINDOW');
+            if (dropdown) {
+                dropdown.menuGenerator_ = createDropdownOptions(windowVariables);
+                dropdown.setValue(windowId); // 새로 추가된 항목을 기본값으로 설정
             }
         }
     });
@@ -393,11 +407,117 @@ document.addEventListener('DOMContentLoaded', () => {
             return code;
         };
 
+
+        //move window 정의 @move_window
+
+        Blockly.Blocks['window_move'] = {
+            init: function() {
+              this.appendValueInput("NAME")
+                  .setCheck("WINDOW")
+                  .appendField("move to window");
+              this.setPreviousStatement(true, null);
+              this.setNextStatement(true, null);
+              this.setColour(10);
+           this.setTooltip("");
+           this.setHelpUrl("");
+            }
+          };
+
+        Blockly.JavaScript.forBlock['window_move'] = function(block,g) {
+            var windowId = Blockly.JavaScript.valueToCode(block, 'NAME', Blockly.JavaScript.ORDER_ATOMIC);
+            var code = `
+            (function() {
+                windowVariables.forEach(function(id) {
+                    document.getElementById(id).style.display = 'none';
+                });
+                document.getElementById(${windowId}).style.display = 'block';
+            })();
+            `;
+            return code;
+        };
+
+        //다른 window로 서서히 전환, @window_fade
+
+        Blockly.Blocks['window_fade'] = {
+            init: function() {
+              this.appendValueInput("NAME")
+                  .setCheck("WINDOW")
+                  .appendField("fade to window");
+              this.setPreviousStatement(true, null);
+              this.setNextStatement(true, null);
+              this.setColour(10);
+           this.setTooltip("");
+           this.setHelpUrl("");
+            }
+          };
+
+          Blockly.JavaScript.forBlock['window_fade'] = function(block,g) {
+            var windowId = Blockly.JavaScript.valueToCode(block, 'NAME', Blockly.JavaScript.ORDER_ATOMIC);
+            var code = `
+            (function() {
+                const duration = 500; // fade duration in milliseconds
+                const currentWindow = windowVariables.find(id => document.getElementById(id).style.display === 'block');
+                const targetWindow = document.getElementById(${windowId});
+        
+                if (currentWindow && targetWindow && currentWindow !== ${windowId}) {
+                    const currentElement = document.getElementById(currentWindow);
+                    let opacity = 1;
+                    const fadeOut = setInterval(() => {
+                        if (opacity <= 0) {
+                            clearInterval(fadeOut);
+                            currentElement.style.display = 'none';
+                            targetWindow.style.display = 'block';
+                            let targetOpacity = 0;
+                            targetWindow.style.opacity = targetOpacity;
+                            const fadeIn = setInterval(() => {
+                                if (targetOpacity >= 1) {
+                                    clearInterval(fadeIn);
+                                } else {
+                                    targetOpacity += 0.1;
+                                    targetWindow.style.opacity = targetOpacity;
+                                }
+                            }, duration / 10);
+                        } else {
+                            opacity -= 0.1;
+                            currentElement.style.opacity = opacity;
+                        }
+                    }, duration / 10);
+                } else {
+                    targetWindow.style.display = 'block';
+                    targetWindow.style.opacity = 1;
+                }
+            })();
+            `;
+            return code;
+        };
+
+        // window component의 id 가져오기, @window_id
+        Blockly.Blocks['window_id'] = {
+            init: function() {
+                this.appendDummyInput()
+                    .appendField("")
+                    .appendField(new Blockly.FieldDropdown(createDropdownOptions(windowVariables)),'WINDOW');
+                this.setOutput(true, 'WINDOW');
+                this.setColour(10);
+                this.setTooltip("Returns the id of the Window component.");
+                this.setHelpUrl("");
+            }
+        };
+
+        Blockly.JavaScript.forBlock['window_id'] = function(block,generator) {
+            var variable = block.getFieldValue('WINDOW');
+            var code = `'${variable}'`;
+            return [code, Blockly.JavaScript.ORDER_NONE];
+        };
+          
+        
         //workspace 저장
         workspace = Blockly.inject(blocklyDiv, {
             toolbox: toolboxDom.documentElement,
             theme: Blockly.Themes.Classic,
         });
+
+        updateDropdownWindows('window1');
         
         window.updateDropdownOptions = updateDropdownOptions; 
 
@@ -406,7 +526,16 @@ document.addEventListener('DOMContentLoaded', () => {
         var resultmessage=  "";
         generateCodeButton.addEventListener('click', async () => {
             const code = Blockly.JavaScript.workspaceToCode(workspace);
-            JS_code = pre_defined_func + "\ndocument.addEventListener('DOMContentLoaded', () => {\n" + code + "\n})";
+            let window_variables_define = "\nconst windowVariables = [";
+            windowVariables.forEach(function(id, index) {
+                window_variables_define += `'${id}'`;
+                if (index < windowVariables.length - 1) {
+                    window_variables_define += ", ";
+                }
+            });
+            window_variables_define += "];\n";
+            
+            JS_code = pre_defined_func + window_variables_define + "\ndocument.addEventListener('DOMContentLoaded', () => {\n" + code + "\n})";
             const resultPageHTML = document.querySelector('#resultpage-container').innerHTML;
 
             showPopup();
