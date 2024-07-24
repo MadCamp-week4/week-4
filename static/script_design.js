@@ -163,12 +163,23 @@ function getCleanedResultPageHTML() {
     const resultPageContainer = document.getElementById('resultpage-container');
     const resultPages = resultPageContainer.querySelectorAll('.resultpage');
 
+    size = {}
     resultPages.forEach(resultPage => {
+        size[resultPage.id] = {
+            'width': window.getComputedStyle(resultPage).getPropertyValue('width'),
+            'height': window.getComputedStyle(resultPage).getPropertyValue('height'),
+        }
         resultPage.style.width = '';
         resultPage.style.height = '';
     });
+    cleanHtml = resultPageContainer.innerHTML;
+    
+    resultPages.forEach(resultPage => {
+        resultPage.style.width = size[resultPage.id]['width'];
+        resultPage.style.height = size[resultPage.id]['height'];
+    });
 
-    return resultPageContainer.innerHTML;
+    return cleanHtml;
 }
 
 // @create_download_src_zip
