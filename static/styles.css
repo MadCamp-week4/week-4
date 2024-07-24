@@ -340,6 +340,25 @@ input[type="range"] {
     pointer-events: none;
 }
 
+.custom-text {
+    /* position: relative; */
+    border: 1px solid #000;
+    resize: both;
+    background-color: white;
+    /* min-height: 50px;
+    min-width: 50px; */
+    /* text-align: center; */
+    justify-content: center;
+    /*align-items: center;*/
+    max-height: 300px;
+    max-width: 400px;
+    display: block;
+    word-break: break-all;
+    /* padding-inline-start: 5px; */
+    padding: 5px;
+    overflow-y: auto;
+}
+
 .text-controls {
     display: flex;
     flex-wrap: wrap;
