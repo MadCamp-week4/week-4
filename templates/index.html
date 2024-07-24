@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resizable Panels</title>
     <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="https://use.typekit.net/gjr4lrn.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <script src="https://unpkg.com/blockly"></script>
     <script src="../static/node_modules/blockly/blockly_compressed.js"></script>
@@ -58,7 +59,7 @@
                 <div class="content" style="display: grid">
 
                     <div class="section" id="windowsSection">
-                        <h2>windows</h2>
+                        <h2 style="font-family: 'figtree', sans-serif;">Windows</h2>
                         <button id="addWindow" class="section-button">add window</button>
                         <button id="deleteWindow" class="section-button">delete window</button>
                         <div class="scrollable" id="window-buttons" style="overflow-x: auto; white-space: nowrap; margin-top: 10px;"></div>
@@ -66,13 +67,13 @@
                         <div id="colorPickerContainer" style="display: none;">
                             <input type="color" id="colorPicker">
                             <input type="text" id="hexColorInput" placeholder="#000000">
-                            <button id="applyColorButton">Apply</button>
-                            <button id="closeColorPickerButton">Close</button>
+                            <button id="applyColorButton" style="font-family: 'figtree', sans-serif;">Apply</button>
+                            <button id="closeColorPickerButton" style="font-family: 'figtree', sans-serif;">Close</button>
                         </div>
                     </div>
 
                     <div class="section" id="elementsSection">
-                        <h2>elements</h2>
+                        <h2 style="font-family: 'figtree', sans-serif;">Elements</h2>
                         <button id="addButton" class="section-button">add button</button>
                         <button id="addTextBox" class="section-button">add textbox</button>
                         <button id="addText" class="section-button">add text</button>
@@ -80,22 +81,22 @@
                     </div>
 
                     <div class="section" id="elementFormatterSection">
-                        <h2>Element Formatter</h2>
+                        <h2 style="font-family: 'figtree', sans-serif;">Element Formatter</h2>
     
-                        <label for="name-input">Element ID:</label>
+                        <label for="name-input">Element ID</label>
                         <input type="text" id="name-input" placeholder="Element ID">
     
-                        <label for="background-color-input">color</label>
+                        <label for="background-color-input">Color</label>
                         <input type="color" id="background-color-input" title="Background Color">
     
-                        <label for="border">border</label>
+                        <label for="border">Border</label>
                         <div id="border">
                             <input type="color" id="border-color-input" title="Border Color">
                             <input type="number" id="border-width-input" placeholder="Width" title="Border Width">
                             <input type="number" id="border-radius-input" placeholder="Radius" title="Border Radius">
                         </div>
     
-                        <label for="element-background-opacity">opacity</label>
+                        <label for="element-background-opacity">Opacity</label>
                         <input type="range" id="element-background-opacity" min="0" max="100" title="Opacity">
     
                         <label for="zIndex">z-index</label>
@@ -106,12 +107,12 @@
                     </div>
 
                     <div class="section" id="textFormatterSection">
-                        <h2>Text Formatter</h2>
+                        <h2 style="font-family: 'figtree', sans-serif;">Text Formatter</h2>
 
-                        <label for="font-color-input">text color</label>
+                        <label for="font-color-input">Text color</label>
                         <input type="color" id="font-color-input">
 
-                        <label for="fontname-select">Font:</label>
+                        <label for="fontname-select">Font</label>
                         <select id="fontname-select">
                             <option value="Arial">Arial</option>
                             <option value="Courier New">Courier New</option>
@@ -121,10 +122,10 @@
                             <option value="Verdana">Verdana</option>
                         </select>
                         
-                        <label for="font-size-input">Font Size:</label>
+                        <label for="font-size-input">Font Size</label>
                         <input type="number" id="font-size-input" placeholder="Font Size">
                         
-                        <label>Text Format:</label>
+                        <label>Text Format</label>
                         <div class="text-format-buttons">
                             <button id="boldButton">B</button>
                             <button id="italicButton">I</button>
