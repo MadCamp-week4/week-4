@@ -16,31 +16,44 @@ let cssMap = {
     '.resultpage': {
         'position': 'absolute',
         'overflow': 'auto',
-        'background-color': 'cornflowerblue',
+        'background-color': 'white',
         'border': '1px solid #ccc'
     },
     '.custom-button': {
+        'position': 'absolute',
         'display': 'inline-block',
         'resize': 'both',
         'background-color': 'white',
         'max-height': '300px',
-        'max-width': '400px'
+        'max-width': '400px',
+        'font-family': 'Arial, Helvetica, sans-serif',
+        'border-radius': '10px'
     },
     '.custom-textbox': {
         'border': '1px solid #000',
         'background-color': 'white',
         'resize': 'both',
+        'justify-content': 'center',
         'text-align': 'center',
         'max-height': '300px',
-        'max-width': '400px'
+        'max-width': '400px',
+        'display': 'block',
+        'word-break': 'break-all',
+        'padding': '5px',
+        'overflow-y': 'auto'
     },
     '.custom-text': {
         'border': '1px solid #000',
         'background-color': 'white',
         'resize': 'both',
+        'justify-content': 'center',
         'text-align': 'center',
         'max-height': '300px',
-        'max-width': '400px'
+        'max-width': '400px',
+        'display': 'block',
+        'word-break': 'break-all',
+        'padding': '5px',
+        'overflow-y': 'auto'
     },
     '.custom-textbox[contenteditable]:empty:before': {
         'content': 'attr(data-placeholder)',
@@ -844,7 +857,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // @text_formatter
     document.getElementById('name-input').addEventListener('change', function() {
-        if (btn_curclick && btn_curclick.id !== currentWindow) {
+        if (btn_curclick && btn_curclick.id !== currentWindow && !btn_curclick.id.match(/^window\d+$/)) {
             cssId = '#' + btn_curclick.id;
             cssNewId = '#' + this.value;
             cssMap[cssNewId] = cssMap[cssId];
