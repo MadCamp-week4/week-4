@@ -6,6 +6,7 @@ let btn_num = 1;
 let btn_curclick = null;
 
 let txtbox_num = 1;
+let textdiv_num = 1;
 
 let windowCount = 1;
 let currentWindow = 'window1';
@@ -26,6 +27,14 @@ let cssMap = {
         'max-width': '400px'
     },
     '.custom-textbox': {
+        'border': '1px solid #000',
+        'background-color': 'white',
+        'resize': 'both',
+        'text-align': 'center',
+        'max-height': '300px',
+        'max-width': '400px'
+    },
+    '.custom-text': {
         'border': '1px solid #000',
         'background-color': 'white',
         'resize': 'both',
@@ -450,7 +459,8 @@ function addTextboxToResultPage() {
 // @add_text
 function addTextToResultPage() {
     const textDiv = document.createElement('div');
-    textDiv.classList.add("resizable", "custom-textbox"); // 기존 스타일 클래스 재사용
+    textDiv.id = 'textDiv' + String(textdiv_num);
+    textDiv.classList.add("resizable", "custom-text");
     textDiv.style.position = "absolute";
     textDiv.style.width = "30%";
     textDiv.style.height = "20%";
@@ -462,6 +472,25 @@ function addTextToResultPage() {
     textDiv.style.fontSize = "14px";
     textDiv.style.fontFamily = "Arial";
     textDiv.contentEditable = false;
+
+    textDiv.addEventListener('click', function(event) {
+        event.stopPropagation(); 
+        btn_curclick = event.target;
+        console.log('Selected textDiv ID:', btn_curclick.id);
+        document.getElementById("font-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('color'));
+        document.getElementById("border-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('border-color'));
+        document.getElementById("border-width-input").value = extractFirstPxValue(window.getComputedStyle(event.target).getPropertyValue('border-width'));
+        document.getElementById("border-radius-input").value = window.getComputedStyle(event.target).getPropertyValue('border-radius').replace('px', '');
+        document.getElementById("background-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('background-color'));
+        document.getElementById("element-background-opacity").value = window.getComputedStyle(event.target).getPropertyValue('opacity') * 100;
+        document.getElementById('name-input').value = btn_curclick.id; 
+
+        document.getElementById('font-size-input').value = getFontSize(window.getComputedStyle(event.target).getPropertyValue('font'));
+        document.getElementById('fontname-select').value = getFont(window.getComputedStyle(event.target).getPropertyValue('font'));
+
+        isDraggingText = false;
+        textDiv.focus();
+    });
 
     textDiv.addEventListener('dblclick', function() {
         const editorPopup = document.getElementById('editor_popup');
@@ -617,7 +646,7 @@ function dragElement(element) {
         const height = extractFirstPxValue(window.getComputedStyle(resultPage).getPropertyValue('height'));
         const elementWidth = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('width'));
         const elementHeight = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('height'));
-        
+
         widthPercent = elementWidth * 100 / width;
         heightPercent = elementHeight * 100 / height;
 
@@ -814,16 +843,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // @text_formatter
-    // document.getElementById('name-input').addEventListener('change', function() {
-    //     if (btn_curclick && btn_curclick.id !== currentWindow && btn_curclick.tagName !== "DIV") {
-    //         btn_curclick.id = this.value;
-    //     }
-    // });
+    document.getElementById('name-input').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.id !== currentWindow) {
+            cssId = '#' + btn_curclick.id;
+            cssNewId = '#' + this.value;
+            cssMap[cssNewId] = cssMap[cssId];
+            delete cssMap[cssId];
+
+            btn_curclick.id = this.value;
+        }
+    });
 
     document.getElementById('font-size-input').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== currentWindow) {
-            const selection = window.getSelection(); 
-            if (selection.rangeCount) {
+            if (btn_curclick.classList.contains('custom-textbox')) {
+                const selection = window.getSelection();    
                 const range = selection.getRangeAt(0);
                 if (range && !range.collapsed) {
                     const parentElement = range.commonAncestorContainer.parentElement;
@@ -854,25 +888,27 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('font-color-input').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== currentWindow) {
             const selection = window.getSelection(); 
-            // if (selection.rangeCount) {
-            //     const range = selection.getRangeAt(0);
-            //     if (range && !range.collapsed) {
-            //         const parentElement = range.commonAncestorContainer.parentElement;
-            //         if (parentElement.tagName === 'SPAN') {
-            //             parentElement.style.color = this.value;
-            //         } else {
-            //             const span = document.createElement('span');
-            //             span.style.color = this.value;
-            //             span.appendChild(range.extractContents());
-            //             range.insertNode(span);
-            //             selection.removeAllRanges();
-            //             selection.addRange(range);
-            //         }
-            //     }
-            // }
-            // else {
-            btn_curclick.style.color = this.value;
-            // }
+            if (btn_curclick.classList.contains('custom-textbox')) {
+                if (selection.rangeCount) {
+                    const range = selection.getRangeAt(0);
+                    if (range && !range.collapsed) {
+                        const parentElement = range.commonAncestorContainer.parentElement;
+                        if (parentElement.tagName === 'SPAN') {
+                            parentElement.style.color = this.value;
+                        } else {
+                            const span = document.createElement('span');
+                            span.style.color = this.value;
+                            span.appendChild(range.extractContents());
+                            range.insertNode(span);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
+                    }
+                }
+            }
+            else {
+                btn_curclick.style.color = this.value;
+            }
 
             cssId = '#' + btn_curclick.id;
             if (!cssMap[cssId]) {
@@ -884,20 +920,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('fontname-select').addEventListener('change', function() {
         if (btn_curclick && btn_curclick.id !== currentWindow) {
-            const selection = window.getSelection(); 
-            if (selection.rangeCount) {
-                const range = selection.getRangeAt(0);
-                if (range && !range.collapsed) {
-                    const parentElement = range.commonAncestorContainer.parentElement;
-                    if (parentElement.tagName === 'SPAN') {
-                        parentElement.style.fontFamily = this.value;
-                    } else {
-                        const span = document.createElement('span');
-                        span.style.fontFamily = this.value;
-                        span.appendChild(range.extractContents());
-                        range.insertNode(span);
-                        selection.removeAllRanges();
-                        selection.addRange(range);
+            
+            if (btn_curclick.classList.contains('custom-textbox')) {
+                const selection = window.getSelection(); 
+                if (selection.rangeCount) {
+                    const range = selection.getRangeAt(0);
+                    if (range && !range.collapsed) {
+                        const parentElement = range.commonAncestorContainer.parentElement;
+                        if (parentElement.tagName === 'SPAN') {
+                            parentElement.style.fontFamily = this.value;
+                        } else {
+                            const span = document.createElement('span');
+                            span.style.fontFamily = this.value;
+                            span.appendChild(range.extractContents());
+                            range.insertNode(span);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
                     }
                 }
             }
@@ -915,20 +954,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('boldButton').addEventListener('click', function() {
         if (btn_curclick && btn_curclick.id !== currentWindow) {
-            const selection = window.getSelection(); 
-            if (selection.rangeCount) {
-                const range = selection.getRangeAt(0);
-                if (range && !range.collapsed) {
-                    const parentElement = range.commonAncestorContainer.parentElement;
-                    if (parentElement.tagName === 'SPAN') {
-                        parentElement.style.fontWeight = span.style.fontWeight === 'bold' ? 'normal' : 'bold';
-                    } else {
-                        const span = document.createElement('span');
-                        span.style.fontWeight = span.style.fontWeight === 'bold' ? 'normal' : 'bold';
-                        span.appendChild(range.extractContents());
-                        range.insertNode(span);
-                        selection.removeAllRanges();
-                        selection.addRange(range);
+            if (btn_curclick.classList.contains('custom-textbox')) {
+                const selection = window.getSelection(); 
+                if (selection.rangeCount) {
+                    const range = selection.getRangeAt(0);
+                    if (range && !range.collapsed) {
+                        const parentElement = range.commonAncestorContainer.parentElement;
+                        if (parentElement.tagName === 'SPAN') {
+                            parentElement.style.fontWeight = span.style.fontWeight === 'bold' ? 'normal' : 'bold';
+                        } else {
+                            const span = document.createElement('span');
+                            span.style.fontWeight = span.style.fontWeight === 'bold' ? 'normal' : 'bold';
+                            span.appendChild(range.extractContents());
+                            range.insertNode(span);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
                     }
                 }
             }
@@ -946,20 +987,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('italicButton').addEventListener('click', function() {
         if (btn_curclick && btn_curclick.id !== currentWindow) {
-            const selection = window.getSelection(); 
-            if (selection.rangeCount) {
-                const range = selection.getRangeAt(0);
-                if (range && !range.collapsed) {
-                    const parentElement = range.commonAncestorContainer.parentElement;
-                    if (parentElement.tagName === 'SPAN') {
-                        parentElement.style.fontStyle = parentElement.style.fontStyle === 'italic' ? 'normal' : 'italic';
-                    } else {
-                        const span = document.createElement('span');
-                        span.style.fontStyle = span.style.fontStyle === 'italic' ? 'normal' : 'italic';
-                        span.appendChild(range.extractContents());
-                        range.insertNode(span);
-                        selection.removeAllRanges();
-                        selection.addRange(range);
+            if (btn_curclick.classList.contains('custom-textbox')) {
+                const selection = window.getSelection(); 
+                if (selection.rangeCount) {
+                    const range = selection.getRangeAt(0);
+                    if (range && !range.collapsed) {
+                        const parentElement = range.commonAncestorContainer.parentElement;
+                        if (parentElement.tagName === 'SPAN') {
+                            parentElement.style.fontStyle = parentElement.style.fontStyle === 'italic' ? 'normal' : 'italic';
+                        } else {
+                            const span = document.createElement('span');
+                            span.style.fontStyle = span.style.fontStyle === 'italic' ? 'normal' : 'italic';
+                            span.appendChild(range.extractContents());
+                            range.insertNode(span);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
                     }
                 }
             }
@@ -977,22 +1020,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('superscriptButton').addEventListener('click', function() {
         if (btn_curclick && btn_curclick.id !== currentWindow) {
-            const selection = window.getSelection(); 
-            if (selection.rangeCount) {
-                const range = selection.getRangeAt(0);
-                if (range && !range.collapsed) {
-                    const parentElement = range.commonAncestorContainer.parentElement;
-                    if (parentElement.tagName === 'SPAN') {
-                        parentElement.style.verticalAlign = parentElement.style.verticalAlign === 'super' ? 'baseline' : 'super';
-                        parentElement.style.fontSize = parentElement.style.verticalAlign === 'super' ? 'smaller' : 'inherit';
-                    } else {
-                        const span = document.createElement('span');
-                        span.style.verticalAlign = span.style.verticalAlign === 'super' ? 'baseline' : 'super';
-                        span.style.fontSize = span.style.verticalAlign === 'super' ? 'smaller' : 'inherit';
-                        span.appendChild(range.extractContents());
-                        range.insertNode(span);
-                        selection.removeAllRanges();
-                        selection.addRange(range);
+            if (btn_curclick.classList.contains('custom-textbox')) {
+                const selection = window.getSelection(); 
+                if (selection.rangeCount) {
+                    const range = selection.getRangeAt(0);
+                    if (range && !range.collapsed) {
+                        const parentElement = range.commonAncestorContainer.parentElement;
+                        if (parentElement.tagName === 'SPAN') {
+                            parentElement.style.verticalAlign = parentElement.style.verticalAlign === 'super' ? 'baseline' : 'super';
+                            parentElement.style.fontSize = parentElement.style.verticalAlign === 'super' ? 'smaller' : 'inherit';
+                        } else {
+                            const span = document.createElement('span');
+                            span.style.verticalAlign = span.style.verticalAlign === 'super' ? 'baseline' : 'super';
+                            span.style.fontSize = span.style.verticalAlign === 'super' ? 'smaller' : 'inherit';
+                            span.appendChild(range.extractContents());
+                            range.insertNode(span);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
                     }
                 }
             }
@@ -1012,22 +1057,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('subscriptButton').addEventListener('click', function() {
         if (btn_curclick && btn_curclick.id !== currentWindow) {
-            const selection = window.getSelection(); 
-            if (selection.rangeCount) {
-                const range = selection.getRangeAt(0);
-                if (range && !range.collapsed) {
-                    const parentElement = range.commonAncestorContainer.parentElement;
-                    if (parentElement.tagName === 'SPAN') {
-                        parentElement.style.verticalAlign = parentElement.style.verticalAlign === 'sub' ? 'baseline' : 'sub';
-                        parentElement.style.fontSize = parentElement.style.verticalAlign === 'sub' ? 'smaller' : 'inherit';
-                    } else {
-                        const span = document.createElement('span');
-                        span.style.verticalAlign = span.style.verticalAlign === 'sub' ? 'baseline' : 'sub';
-                        span.style.fontSize = span.style.verticalAlign === 'sub' ? 'smaller' : 'inherit';
-                        span.appendChild(range.extractContents());
-                        range.insertNode(span);
-                        selection.removeAllRanges();
-                        selection.addRange(range);
+            if (btn_curclick.classList.contains('custom-textbox')) {
+                const selection = window.getSelection(); 
+                if (selection.rangeCount) {
+                    const range = selection.getRangeAt(0);
+                    if (range && !range.collapsed) {
+                        const parentElement = range.commonAncestorContainer.parentElement;
+                        if (parentElement.tagName === 'SPAN') {
+                            parentElement.style.verticalAlign = parentElement.style.verticalAlign === 'sub' ? 'baseline' : 'sub';
+                            parentElement.style.fontSize = parentElement.style.verticalAlign === 'sub' ? 'smaller' : 'inherit';
+                        } else {
+                            const span = document.createElement('span');
+                            span.style.verticalAlign = span.style.verticalAlign === 'sub' ? 'baseline' : 'sub';
+                            span.style.fontSize = span.style.verticalAlign === 'sub' ? 'smaller' : 'inherit';
+                            span.appendChild(range.extractContents());
+                            range.insertNode(span);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
                     }
                 }
             }
