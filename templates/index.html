@@ -12,6 +12,7 @@
     <script src="../static/node_modules/blockly/javascript_compressed.js"></script>
     <script src="../static/node_modules/blockly/msg/en.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdn.tiny.cloud/1/7g92spr1tld780gk2tnuebt1hzr9yvpe6nvc009p52waszmy/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
     <script src="../static/script_function.js"></script>
     <script src="../static/script_design.js"></script>
     <script src="../static/script.js"></script>
@@ -26,6 +27,10 @@
             <div id="result_text"></div>
             <button id="confirm_button">Confirm</button>
         </div>
+    </div>
+    <div id="editor_popup" style="display:none;">
+        <textarea id="tiny_editor"></textarea>
+        <button id="apply_button">Apply</button>
     </div>
     <div class="background"></div>
     <div class="container">
@@ -70,6 +75,7 @@
                         <h2>elements</h2>
                         <button id="addButton" class="section-button">add button</button>
                         <button id="addTextBox" class="section-button">add textbox</button>
+                        <button id="addText" class="section-button">add text</button>
                         <button id="deleteElement" class="section-button">delete element</button>
                     </div>
 

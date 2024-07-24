@@ -447,6 +447,53 @@ function addTextboxToResultPage() {
 }
 
 
+// @add_text
+function addTextToResultPage() {
+    const textDiv = document.createElement('div');
+    textDiv.classList.add("resizable", "custom-textbox"); // 기존 스타일 클래스 재사용
+    textDiv.style.position = "absolute";
+    textDiv.style.width = "30%";
+    textDiv.style.height = "20%";
+    textDiv.style.top = "10%";
+    textDiv.style.left = "10%";
+    textDiv.style.backgroundColor = "white";
+    textDiv.style.border = "1px solid #000";
+    textDiv.style.zIndex = 1;
+    textDiv.style.fontSize = "14px";
+    textDiv.style.fontFamily = "Arial";
+    textDiv.contentEditable = false;
+
+    textDiv.addEventListener('dblclick', function() {
+        const editorPopup = document.getElementById('editor_popup');
+        const tinyEditor = document.getElementById('tiny_editor');
+        const mainContent = document.querySelector('.container');
+
+       // tinyEditor.value = textDiv.innerHTML.replace(/<br>/g, '\n');
+        editorPopup.style.display = 'block';
+        mainContent.classList.add('blur-background');
+
+        tinymce.init({
+            target: tinyEditor,
+            menubar: false,
+            setup: function (editor) {
+                editor.on('init', function () {
+                    editor.setContent(tinyEditor.value);
+                });
+            }
+        });
+
+        document.getElementById('apply_button').onclick = function() {
+            textDiv.innerHTML = tinymce.get(tinyEditor.id).getContent();
+            tinymce.remove();
+            editorPopup.style.display = 'none';
+            mainContent.classList.remove('blur-background');
+        };
+    });
+
+    document.getElementById(currentWindow).appendChild(textDiv);
+    dragElement(textDiv);
+}
+
 // @utilities
 function rgbToHex(rgb) {
     const rgbArray = rgb.match(/\d+/g).map(Number);
@@ -657,6 +704,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteElementButton = document.getElementById('deleteElement');
     deleteElementButton.addEventListener('click', () => {
         removeElement();
+    });
+
+    const addTextButton = document.getElementById('addText');
+    addTextButton.addEventListener('click', () => {
+        addTextToResultPage();
     });
 
     // @element_formatter

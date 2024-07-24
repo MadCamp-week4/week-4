@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
             Blockly.JavaScript.forBlock[`html_component_${element.name}`] = function(block,generator) {
                 var htmlComponent = Blockly.JavaScript.valueToCode(block, 'NAME', Blockly.JavaScript.ORDER_ATOMIC);
                 // 텍스트로 반환
-                var code = element.isStyle ? `document.getElementById(${htmlComponent}).style.${element.name}` : `document.getElementById(${htmlComponent}).${element.name}`;
+                var code = element.isStyle ? `window.getComputedStyle(document.getElementById(${htmlComponent})).${element.name}` : `document.getElementById(${htmlComponent}).${element.name}`;
                 return [code, Blockly.JavaScript.ORDER_NONE];
             };
         });
