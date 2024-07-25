@@ -7,6 +7,7 @@ let btn_curclick = null;
 
 let txtbox_num = 1;
 let textdiv_num = 1;
+let rect_num = 1;
 
 let windowCount = 1;
 let currentWindow = 'window1';
@@ -410,6 +411,7 @@ function addTextboxToResultPage() {
     txtbox.style.fontFamily = "Arial";
 
     txtbox.id = 'txtbox' + String(txtbox_num);
+    updateDropdownOptions(txtbox.id);
     txtbox.classList.add("resizable", "custom-textbox");
 
     txtbox.addEventListener('click', function(event) {
@@ -488,6 +490,7 @@ function addTextboxToResultPage() {
 function addTextToResultPage() {
     const textDiv = document.createElement('div');
     textDiv.id = 'textDiv' + String(textdiv_num);
+    textdiv_num += 1;
     textDiv.classList.add("resizable", "custom-text");
     textDiv.style.position = "absolute";
     textDiv.style.width = "30%";
@@ -501,6 +504,7 @@ function addTextToResultPage() {
     textDiv.style.fontFamily = "Arial";
     textDiv.contentEditable = false;
 
+    updateDropdownOptions(textDiv.id);
     textDiv.addEventListener('click', function(event) {
         event.stopPropagation(); 
         btn_curclick = event.target;
@@ -595,6 +599,53 @@ function addImageToResultPage(imageUrl) {
     img_num += 1;
 
     updateDropdownOptions(img.id);
+}
+
+// @add_rectangle
+function addRectangleToResultPage() {
+    const rect = document.createElement('div');
+    rect.style.position = "absolute";
+    rect.style.width = "100px";
+    rect.style.height = "100px";
+    rect.style.top = "50px";
+    rect.style.left = "50px";
+    rect.style.backgroundColor = "white";
+    rect.style.border = "1px solid #000";
+    rect.style.zIndex = 1;
+    rect.id = 'rect' + String(rect_num);
+    updateDropdownOptions(rect.id);
+    rect.classList.add("resizable", "custom-rectangle");
+
+    rect.addEventListener('click', function(event) {
+        event.stopPropagation();
+        btn_curclick = event.target;
+        console.log('Selected rectangle ID:', btn_curclick.id);
+        document.getElementById("font-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('color'));
+        document.getElementById("border-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('border-color'));
+        document.getElementById("border-width-input").value = extractFirstPxValue(window.getComputedStyle(event.target).getPropertyValue('border-width'));
+        document.getElementById("border-radius-input").value = window.getComputedStyle(event.target).getPropertyValue('border-radius').replace('px', '');
+        document.getElementById("background-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('background-color'));
+        document.getElementById("element-background-opacity").value = window.getComputedStyle(event.target).getPropertyValue('opacity') * 100;
+        document.getElementById('name-input').value = btn_curclick.id;
+    });
+
+    cssId = '#' + rect.id;
+    cssMap[cssId] = {
+        'position': "absolute",
+        'width': "100px",
+        'height': "100px",
+        'top': "50px",
+        'left': "50px",
+        'background-color': 'white',
+        'border': "1px solid #000",
+        'zIndex': 1,
+        "border-radius": "0px",
+        "opacity": "1"
+    }
+
+    document.getElementById(currentWindow).appendChild(rect);
+    dragElement(rect);
+    rect_num += 1;
 }
 
 // @utilities
@@ -741,6 +792,7 @@ function dragElement(element) {
 // @utilities_remove_element
 function removeElement() {
     if (btn_curclick && btn_curclick.id !== currentWindow) {
+        deleteDropdownOptions(btn_curclick.id);
         btn_curclick.remove();
         btn_curclick = null; // 선택된 요소 초기화
     }
@@ -845,6 +897,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             alert('Please enter a valid image URL.');
         }
+    });
+
+    const addRectangleButton = document.getElementById('addRectangle');
+    addRectangleButton.addEventListener('click', () => {
+        addRectangleToResultPage();
     });
 
     // @element_formatter
