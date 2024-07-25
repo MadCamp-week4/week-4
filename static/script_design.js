@@ -52,7 +52,7 @@ let cssMap = {
     '.custom-text': {
         'border': '1px solid #000',
         'background-color': 'white',
-        'resize': 'both',
+        'resize': 'none',
         'justify-content': 'center',
         'text-align': 'center',
         'max-height': '300px',
@@ -308,6 +308,7 @@ function updateWindowButtons() {
                 win.style.display = win.id === currentWindow ? 'block' : 'none';
             });
             adjustResultPageSize();
+            document.getElementById('currentWindow').textContent = currentWindow;
         });
         windowButtonsContainer.appendChild(windowButton);
     }
@@ -834,7 +835,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentAspectRatio = e.target.value;
         adjustResultPageSize();
     });
-
+    
     // Color picker functionality
     const colorPickerButton = document.getElementById('colorPickerButton');
     const colorPickerContainer = document.getElementById('colorPickerContainer');

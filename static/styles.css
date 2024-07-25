@@ -85,9 +85,27 @@ body, html {
     background-color: white;
     padding: 5px;
     border: 1px solid #ccc;
-    width: 60px;
+    width: 90px;
     height: 30px;
     font-family: "figtree", sans-serif;
+    opacity: 0.8;
+}
+
+#currentWindow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    padding-top: 2px;
+    bottom: 10px;
+    right: 10px;
+    background-color: white;
+    border: 1px solid #ccc;
+    width: 80px;
+    height: 30px;
+    font-size: 14px;
+    font-family: "figtree", sans-serif;
+    opacity: 0.8;
 }
 
 .resize-handle-vertical {
