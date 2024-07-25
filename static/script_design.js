@@ -51,7 +51,7 @@ let cssMap = {
     '.custom-text': {
         'border': '1px solid #000',
         'background-color': 'white',
-        'resize': 'both',
+        'resize': 'none',
         'justify-content': 'center',
         'text-align': 'center',
         'max-height': '300px',
