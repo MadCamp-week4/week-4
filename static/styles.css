@@ -217,7 +217,6 @@ body, html {
 }
 
 #colorPickerContainer {
-
     grid-template-columns: 1fr 1fr;
     /* justify-content: space-between;
     flex-direction: column;
@@ -373,6 +372,16 @@ input[type="range"] {
     /* padding-inline-start: 5px; */
     padding: 5px;
     overflow-y: auto;
+}
+
+.custom-image {
+    object-fit: cover; 
+    border: none;
+}
+
+#imageLink {
+    background-color: white;
+    margin-bottom: 0;
 }
 
 .text-controls {
