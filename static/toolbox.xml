@@ -374,10 +374,14 @@
 
       <category name = "Keyboard Event" colour = "50">
       <block type = "keyboard_keydown"></block>
+      <block type = "keyboard_keydown_compare"></block>
+      <block type = "keyboard_keyup_compare"></block>
       <block type = "keyboard_keyup"></block>
       </category>
 
       <category name = "Flow" colour = "10">
+      <block type = "to_int"></block>
+      <block type = "to_unit"></block>
       <block type = "wait"></block>
       <block type = "window_id"></block>
       <block type = "window_move"></block>

@@ -548,3 +548,13 @@ code {
     word-break: normal;
     border-radius: 5px;
 }
+
+
+.custom-rectangle {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background-color: white;
+    border: 1px solid #000;
+    z-index: 1;
+}

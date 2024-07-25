@@ -13,6 +13,8 @@
 | eventlistener 이벤트 블록 정의 | @define_event_blocks |
 | keydown 이벤트 블록 정의 | @keyboard_keydown|
 | keyup 이벤트 블록 정의 | @keyboard_keyup |
+| 스트링 받아서 숫자만 리턴하기 | @to_int |
+| 숫자를 받아서 단위 붙이기 | @unit |
 | 윈도우 이동하기 | @move_window |
 | 윈도우 id 가져오기 | @window_id |
 | 다른 윈도우로 서서히 전환 | @window_fade | 

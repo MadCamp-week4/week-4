@@ -94,6 +94,26 @@ var updateDropdownOptions = (elementId) => {
     });
 };
 
+var deleteDropdownOptions = (elementId) => {
+    const index = customVariables.indexOf(elementId);
+    if (index > -1) {
+        customVariables.splice(index, 1);
+    }
+
+    const blocks = workspace.getAllBlocks();
+    blocks.forEach(block => {
+        if (block.type === 'html_component_id') {
+            const dropdown = block.getField('HTML_COMPONENT');
+            if (dropdown) {
+                dropdown.menuGenerator_ = createDropdownOptions(customVariables);
+                if (dropdown.getValue() === elementId) {
+                    dropdown.setValue(customVariables.length ? customVariables[0] : ''); // 기본값을 설정하거나 빈 값으로 설정
+                }
+            }
+        }
+    });
+};
+
 // 드롭다운 업데이트 함수 (윈도우)
 var updateDropdownWindows = (windowId) => {
     windowVariables.push(windowId);
@@ -232,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 console.log(statements_statement);
         
-                var code = `document.getElementById(${htmlComponent}).addEventListener('${event.name}', () => {
+                var code = `document.getElementById(${htmlComponent}).addEventListener('${event.name}', async () => {
                     ${statements_statement}
                 });`;
                 return code;
@@ -380,6 +400,63 @@ document.addEventListener('DOMContentLoaded', () => {
             return code;
         };
 
+        // 키보드 입력과 주어지는 string과 비교 @keyboard_keydown_compare
+
+        Blockly.Blocks['keyboard_keydown_compare'] = {
+            init: function() {
+              this.appendValueInput("KEY")
+                  .setCheck("String")
+                  .appendField("Keyboard Keydown for");
+              this.appendStatementInput("STATEMENT")
+                  .setCheck(null);
+              this.setColour(50);
+              this.setTooltip("");
+              this.setHelpUrl("");
+            }
+          };
+
+        Blockly.JavaScript.forBlock['keyboard_keydown_compare'] = function(block,g) {
+        var value_key = Blockly.JavaScript.valueToCode(block, 'KEY', Blockly.JavaScript.ORDER_ATOMIC);
+        var statements_statement = Blockly.JavaScript.statementToCode(block, 'STATEMENT');
+        
+        var code = `
+        document.addEventListener('keydown', function(event) {
+        if (event.key === ${value_key}) {
+            ${statements_statement}
+        }
+        });
+        `;
+        return code;
+        };
+
+        //@keyboard_keyup_compare
+        Blockly.Blocks['keyboard_keyup_compare'] = {
+            init: function() {
+                this.appendValueInput("KEY")
+                    .setCheck("String")
+                    .appendField("Keyboard Keyup for");
+                this.appendStatementInput("STATEMENT")
+                    .setCheck(null);
+                this.setColour(50);
+                this.setTooltip("");
+                this.setHelpUrl("");
+            }
+        };
+        
+        Blockly.JavaScript['keyboard_keyup_compare'] = function(block) {
+            var value_key = Blockly.JavaScript.valueToCode(block, 'KEY', Blockly.JavaScript.ORDER_ATOMIC);
+            var statements_statement = Blockly.JavaScript.statementToCode(block, 'STATEMENT');
+            
+            var code = `
+            document.addEventListener('keyup', function(event) {
+                if (event.key === ${value_key}) {
+                    ${statements_statement}
+                }
+            });
+            `;
+            return code;
+        };
+
         ///////////// flow blocks /////////////
         // Wait 블록 정의
         Blockly.Blocks['wait'] = {
@@ -403,10 +480,59 @@ document.addEventListener('DOMContentLoaded', () => {
         Blockly.JavaScript.forBlock['wait'] = function(block,g) {
             var duration = block.getFieldValue('DURATION');
             var nextCode = Blockly.JavaScript.statementToCode(block, 'NEXT');
-            var code = `sleep(${duration}).then(() => {\n${nextCode}\n});\n`;
+            // var code = `await sleep(${duration}).then(() => {\n${nextCode}\n});\n`;
+            var code = `await sleep(${duration}); ${nextCode}`;
             return code;
         };
 
+        //문자를 받아서 그 중에 숫자만 반환 @to_int
+        Blockly.Blocks['to_int'] = {
+            init: function() {
+              this.appendValueInput("NUMBER")
+                  .setCheck("String")
+                  .appendField("to number");
+              this.setOutput(true, "Number");
+              this.setColour(10);
+              this.setTooltip("");
+              this.setHelpUrl("");
+            }
+          };
+
+          Blockly.JavaScript.forBlock['to_int'] = function(block,g) {
+            var value_number = Blockly.JavaScript.valueToCode(block, 'NUMBER', Blockly.JavaScript.ORDER_ATOMIC);
+            // 정규식을 사용하여 문자열에서 숫자 부분만 추출
+            var code = 'parseFloat(' + value_number + ')';
+            return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+          };
+
+        //number with unit @unit
+        Blockly.Blocks['to_unit'] = {
+            init: function() {
+              this.appendValueInput("NUMBER")
+                  .setCheck("Number");
+              this.appendDummyInput()
+                  .appendField(new Blockly.FieldDropdown([["px", "PX"], ["%", "PERCENT"]]), "UNIT");
+              this.setColour(10);
+              this.setOutput(true, null);
+              this.setTooltip("");
+              this.setHelpUrl("");
+            }
+          };
+
+        Blockly.JavaScript.forBlock['to_unit'] = function(block,g) {
+            var number_value = Blockly.JavaScript.valueToCode(block, 'NUMBER', Blockly.JavaScript.ORDER_ATOMIC);
+            var dropdown_unit = block.getFieldValue('UNIT');
+            
+            var unit;
+            if (dropdown_unit === 'PX') {
+                unit = 'px';
+            } else if (dropdown_unit === 'PERCENT') {
+                unit = '%';
+            }
+            
+            var code = `${number_value}.toString() + '${unit}'`;
+            return [code, Blockly.JavaScript.ORDER_ADDITION];
+        };
 
         //move window 정의 @move_window
 
