@@ -15,14 +15,20 @@ let cssMap = {
     '#window1': {},
     '.resultpage': {
         'position': 'absolute',
-        'overflow': 'auto',
+        'overflow-x': 'hidden',
+        'overflow-y': 'auto',
         'background-color': 'white',
         'border': '1px solid #ccc'
+    },
+    '.custom-image': {
+        'object-fit': 'cover', 
+        'border': 'none',
+        'resize': 'none',
     },
     '.custom-button': {
         'position': 'absolute',
         'display': 'inline-block',
-        'resize': 'both',
+        'resize': 'none',
         'background-color': 'white',
         'max-height': '300px',
         'max-width': '400px',
@@ -32,7 +38,7 @@ let cssMap = {
     '.custom-textbox': {
         'border': '1px solid #000',
         'background-color': 'white',
-        'resize': 'both',
+        'resize': 'none',
         'justify-content': 'center',
         'text-align': 'center',
         'max-height': '300px',
@@ -328,15 +334,15 @@ function changeBackgroundColor(color) {
 function addButtonToResultPage() {
     const btn = document.createElement('button');
     const btnText = document.createTextNode('Button ' + btn_num);
+    btnText.id = 'btnText' + String(btn_num);
     btn.appendChild(btnText);
 
-    // btn.style.position = "absolute";
+    // btn.style.position = "absolute"; // already declared in styles.css
     // btn.style.width = "20%";
     // btn.style.height = "15%";
     btn.style.top = `${btn_num * 11}%`;
     btn.style.left = "10%";
     btn.style.fontSize = "14px";
-    btn.style.fontFamily = "Arial";
 
     btn.id = 'btn' + String(btn_num);
     btn.classList.add("resizable", "custom-button");
@@ -346,7 +352,10 @@ function addButtonToResultPage() {
         event.stopPropagation();  // 이벤트 버블링 방지
         btn_curclick = event.target;
         console.log('Selected button ID:', btn_curclick.id);
+        document.getElementById('text-input').style.display = 'block';
+
         document.getElementById('name-input').value = btn_curclick.id;
+        document.getElementById('text-input').value = btn.childNodes[0].textContent;
         document.getElementById("border-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('border-color'));
         document.getElementById("border-width-input").value = extractFirstPxValue(window.getComputedStyle(event.target).getPropertyValue('border-width'));
         document.getElementById("border-radius-input").value = window.getComputedStyle(event.target).getPropertyValue('border-radius').replace('px', '');
@@ -542,6 +551,52 @@ function addTextToResultPage() {
     dragElement(textDiv);
 }
 
+let img_num = 1;
+// @add_img
+function addImageToResultPage(imageUrl) {
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.alt = 'Inserted Image';
+
+    img.style.position = "absolute";
+    img.style.top = "25%";
+    img.style.left = "25%";
+    img.style.width = "50%";
+    img.style.height = "50%";
+    img.style.objectFit = "cover";
+
+    img.id = 'img' + String(img_num);
+    img.classList.add("resizable", "custom-image");
+
+    img.addEventListener('click', function(event) {
+        event.stopPropagation();
+        btn_curclick = event.target;
+        console.log('Selected image ID:', btn_curclick.id);
+        document.getElementById('name-input').value = btn_curclick.id;
+        document.getElementById("element-background-opacity").value = window.getComputedStyle(event.target).getPropertyValue('opacity') * 100;
+    });
+
+    cssId = '#' + img.id;
+    cssMap[cssId] = {
+        'position': "absolute",
+        'max_width': "50%",
+        'max_height': "50%",
+        'border': 'none',
+        'top': `25%`,
+        'left': "25%",
+        'resize': "true",
+        'object-fit': "cover",
+        'opacity': document.getElementById("element-background-opacity").value
+    }
+
+    document.getElementById(currentWindow).appendChild(img);
+    dragElement(img);
+    document.getElementById(img.id).style.zIndex = img_num;
+    img_num += 1;
+
+    updateDropdownOptions(img.id);
+}
+
 // @utilities
 function rgbToHex(rgb) {
     const rgbArray = rgb.match(/\d+/g).map(Number);
@@ -614,7 +669,8 @@ function dragElement(element) {
         const elementTop = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('top'));
         const elementLeft = extractFirstPxValue(window.getComputedStyle(element).getPropertyValue('left'));
 
-        const newTop = Math.max(0, Math.min(height - elementHeight, elementTop - pos2));
+        // const newTop = Math.max(0, Math.min(height - elementHeight, elementTop - pos2));
+        const newTop = elementTop - pos2; // 아래로 스크롤은 제한 두지 않음
         const newLeft = Math.max(0, Math.min(width - elementWidth, elementLeft - pos1));
 
         element.style.top = newTop + 'px';
@@ -704,6 +760,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Adjust the resultpage size on window resize
     window.addEventListener('resize', adjustResultPageSize);
 
+    if (btn_curclick === null || !btn_curclick.classList.contains('custom-button')) {
+        document.getElementById('text-input').style.display = 'none';
+    }
+    
     const addWindowButton = document.getElementById('addWindow');
     addWindowButton.addEventListener('click', addWindow);
 
@@ -772,6 +832,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const addTextButton = document.getElementById('addText');
     addTextButton.addEventListener('click', () => {
         addTextToResultPage();
+    });
+
+    const addImageButton = document.getElementById('addImageButton');
+    const imageLinkInput = document.getElementById('imageLink');
+
+    addImageButton.addEventListener('click', () => {
+        const imageUrl = imageLinkInput.value;
+        if (imageUrl) {
+            addImageToResultPage(imageUrl);
+            imageLinkInput.value = ''; // 입력 필드 초기화
+        } else {
+            alert('Please enter a valid image URL.');
+        }
     });
 
     // @element_formatter
@@ -869,6 +942,12 @@ document.addEventListener('DOMContentLoaded', () => {
             delete cssMap[cssId];
 
             btn_curclick.id = this.value;
+        }
+    });
+
+    document.getElementById('text-input').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.classList.contains('custom-button')) {
+            btn_curclick.childNodes[0].nodeValue = this.value;
         }
     });
 
