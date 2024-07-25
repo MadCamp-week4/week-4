@@ -32,7 +32,7 @@ let cssMap = {
         'background-color': 'white',
         'max-height': '300px',
         'max-width': '400px',
-        'font-family': 'Arial, Helvetica, sans-serif',
+        'font-family': 'figtree, sans-serif',
         'border-radius': '10px'
     },
     '.custom-textbox': {
