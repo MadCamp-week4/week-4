@@ -307,6 +307,7 @@ function updateWindowButtons() {
                 win.style.display = win.id === currentWindow ? 'block' : 'none';
             });
             adjustResultPageSize();
+            document.getElementById('currentWindow').textContent = currentWindow;
         });
         windowButtonsContainer.appendChild(windowButton);
     }
@@ -782,7 +783,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentAspectRatio = e.target.value;
         adjustResultPageSize();
     });
-
+    
     // Color picker functionality
     const colorPickerButton = document.getElementById('colorPickerButton');
     const colorPickerContainer = document.getElementById('colorPickerContainer');
