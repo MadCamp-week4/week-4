@@ -334,15 +334,15 @@ function changeBackgroundColor(color) {
 function addButtonToResultPage() {
     const btn = document.createElement('button');
     const btnText = document.createTextNode('Button ' + btn_num);
+    btnText.id = 'btnText' + String(btn_num);
     btn.appendChild(btnText);
 
-    // btn.style.position = "absolute";
+    // btn.style.position = "absolute"; // already declared in styles.css
     // btn.style.width = "20%";
     // btn.style.height = "15%";
     btn.style.top = `${btn_num * 11}%`;
     btn.style.left = "10%";
     btn.style.fontSize = "14px";
-    btn.style.fontFamily = "Arial";
 
     btn.id = 'btn' + String(btn_num);
     btn.classList.add("resizable", "custom-button");
@@ -352,7 +352,10 @@ function addButtonToResultPage() {
         event.stopPropagation();  // 이벤트 버블링 방지
         btn_curclick = event.target;
         console.log('Selected button ID:', btn_curclick.id);
+        document.getElementById('text-input').style.display = 'block';
+
         document.getElementById('name-input').value = btn_curclick.id;
+        document.getElementById('text-input').value = btn.childNodes[0].textContent;
         document.getElementById("border-color-input").value = rgbToHex(window.getComputedStyle(event.target).getPropertyValue('border-color'));
         document.getElementById("border-width-input").value = extractFirstPxValue(window.getComputedStyle(event.target).getPropertyValue('border-width'));
         document.getElementById("border-radius-input").value = window.getComputedStyle(event.target).getPropertyValue('border-radius').replace('px', '');
@@ -757,6 +760,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Adjust the resultpage size on window resize
     window.addEventListener('resize', adjustResultPageSize);
 
+    if (btn_curclick === null || !btn_curclick.classList.contains('custom-button')) {
+        document.getElementById('text-input').style.display = 'none';
+    }
+    
     const addWindowButton = document.getElementById('addWindow');
     addWindowButton.addEventListener('click', addWindow);
 
@@ -935,6 +942,12 @@ document.addEventListener('DOMContentLoaded', () => {
             delete cssMap[cssId];
 
             btn_curclick.id = this.value;
+        }
+    });
+
+    document.getElementById('text-input').addEventListener('change', function() {
+        if (btn_curclick && btn_curclick.classList.contains('custom-button')) {
+            btn_curclick.childNodes[0].nodeValue = this.value;
         }
     });
 
